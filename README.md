@@ -22,7 +22,7 @@ The service provides the following endpoints for its components, following the R
 |  **POST**  | /v1/auth/login    | To login an existing user and create JWT token |
 |  **GET**   | /v1/auth/validate | To validate user auth token (need auth token)  |
 
-## users endpoints
+## users endpoints entry
 
 ### Request
 
@@ -32,7 +32,7 @@ The service provides the following endpoints for its components, following the R
 curl -X GET
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -b "auth_token=<SU_TOKEN>" \
+  -b "auth_token=<app_token>" \
   https://<API_URL>/v1/users
 ```
 
@@ -56,7 +56,7 @@ curl -X GET
 curl -X GET \
  -H "Accept: application/json" \
  -H "Content-Type: application/json" \
- -b "app_token=<SU_TOKEN>" \
+ -b "app_token=<app_token>" \
  https://<API_URL>/v1/users
 ```
 
@@ -74,12 +74,13 @@ curl -X GET \
 
 ### Request
 
-`PUT /v1/users/:id` This endpoints requires a valid JWT token
+`PUT /v1/users/:id` This endpoints requires a valid app token
 
 ```bash
 curl -X PUT \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
+ -b "app_token=<app_token>;>"
   -d '{
     "name": "<name>",
     "password": "<password>",
@@ -108,7 +109,7 @@ curl -X PUT \
 curl -X DELETE
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -b "auth_token=<SU_TOKEN>" \
+  -b "auth_token=<SU_TOKEN>; app_token=<app_token>" \
   https://<API_URL>/v1/users
 ```
 
@@ -120,4 +121,133 @@ curl -X DELETE
 }
 ```
 
+## auth endpoints entry
+
+#| **POST** | /v1/auth/signup | To sign up a new user account | /
+#| **POST** | /v1/auth/login | To login an existing user and create JWT token | /
+#| **GET** | /v1/auth/validate | To validate user auth token (need auth token) |/
+
+### Request
+
+`POST /v1/auth/singup` This endpoints requires a valid app_token
+
+```bash
+curl -X POST \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -b "app_token=<app_token>; auth_token=<auth_token>" \
+  -d '{
+    "name": "<name>",
+    "password": "<password>",
+    "email": "<email>"
+  }' \
+  https://<API_URL>/v1/auth/singup
+```
+
+### response
+
+```json
+{
+  "status": "Successful user registration",
+  "message": "Waiting for email validation",
+  "email_validation_link": [email_validation_link],
+  "data" : {
+    "user": {
+        "id": [user_id],
+        "name": [user_name],
+        "email": [user_email],
+    }
+  }
+}
+```
+
 ---
+
+### Request
+
+`POST /v1/auth/login` This endpoints requires a valid app_token
+
+```bash
+curl -X POST \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -b "app_token=<app_token>; auth_token=<auth_token>" \
+  -d '{
+    "email": "<email>",
+    "password": "<password>"
+  }' \
+  https://<API_URL>/v1/auth/login
+```
+
+### response
+
+```json
+{
+  "status": "Successful user login",
+  "data" : {
+    "token":[auth_token],
+    "user": {
+        "id": [user_id],
+        "name": [user_name],
+        "email": [user_email],
+    }
+  }
+}
+```
+
+---
+
+### Request
+
+`POST /v1/auth/validate` This endpoints requires a valid app_token and auth_token
+
+```bash
+curl -X POST \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -b "app_token=<app_token>; auth_token=<auth_token>"
+  https://<API_URL>/v1/auth/validate
+```
+
+### response
+
+#### Valid auth_token
+
+```json
+{
+  "status": "Valid auth token",
+  "data" : {
+    "user": {
+        "id": [user_id],
+        "name": [user_name],
+        "email": [user_email],
+    }
+  }
+}
+```
+
+### Invalid auth_token
+
+```json
+{
+  "status": "Invalid auth token",
+  "message": "It may be that the auth_token does not exist or has expired, try to re-authenticate your session"
+}
+```
+
+---
+
+Both the `PUT /v1/users` and `POST /vi/auth/signup` endpoints have field validation, which means that the `name`, `email` and `password` fields are validated using the following rules:
+
+| Field        | validation criteria                                  | Description                                                 |
+| ------------ | ---------------------------------------------------- | ----------------------------------------------------------- |
+| **Name**     | Length > 5                                           | Ensures names are reasonably long enough.                   |
+| **Email**    | is available                                         | Prevents duplicate email addresses.                         |
+|              | Matches a valid email address format                 | Guarantees correct email formatting for communication.      |
+| **Password** | Length > 7                                           | Enforces a minimum password strength against basic attacks. |
+|              | Includes at least one number                         | Adds complexity and makes passwords harder to guess.        |
+|              | Includes at least one number                         | Adds complexity and makes passwords harder to guess.        |
+|              | Includes at least one symbol (special character)     | Further increases password complexity for added security.   |
+|              | Includes at least one uppercase and lowercase letter | Makes passwords more resistant to brute-force attacks.      |
+
+###
