@@ -33,3 +33,16 @@ func TestAuthSingup(t *testing.T) {
 	assert.Contains(t, rr.Body.String(), `"name":"ezequiel"`)
 	assert.Contains(t, rr.Body.String(), `"email":"anEmail@gogo.com",`)
 }
+
+func TestAuthLogin(t *testing.T) {
+	body := bytes.NewReader([]byte(`{
+		"email":"anEmail@gogo.com",
+		"password": "original_password"
+	}`))
+	req, err := http.NewRequest("POST", url+"/login", body)
+	assert.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	server.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusCreated, rr.Code)
+}
