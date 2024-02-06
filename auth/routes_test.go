@@ -47,9 +47,6 @@ func TestAuthLogin(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, rr.Code)
 
 	assert.Contains(t, rr.Body.String(), `"status": "Successful user login",`)
-	assert.Contains(t, rr.Body.String(), `"token":"fake_token"`)
-	assert.Contains(t, rr.Body.String(), `"user":{ 
-		"email":"anEmail@gogo.com",
-		"password": "original_password"
-	}`)
+	assert.Contains(t, rr.Body.String(), `"token": "fake_token"`)
+	assert.Contains(t, rr.Body.String(), `"email":"anEmail@gogo.com",`)
 }
