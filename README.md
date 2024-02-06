@@ -184,12 +184,12 @@ curl -X POST \
 ```json
 {
   "status": "Successful user login",
-  "data" : {
-    "token":[auth_token],
+  "data": {
+    "token": "<auth_token>",
     "user": {
-        "id": "<user_id>",
-        "name": "<user_name>",
-        "email": "<user_email>",
+      "id": "<user_id>",
+      "name": "<user_name>",
+      "email": "<user_email>"
     }
   }
 }
@@ -236,6 +236,8 @@ curl -X POST \
 ```
 
 ---
+
+## Field validation rules
 
 Both the `PUT /v1/users` and `POST /vi/auth/signup` endpoints have field validation, which means that the `name`, `email` and `password` fields are validated using the following rules:
 
