@@ -29,9 +29,7 @@ func TestAuthSingup(t *testing.T) {
 	server.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusCreated, rr.Code)
-	assert.Contains(t, rr.Body.String(), "status")
-
+	assert.Contains(t, rr.Body.String(), `"status": "Successful user registration",`)
 	assert.Contains(t, rr.Body.String(), `"name":"ezequiel"`)
 	assert.Contains(t, rr.Body.String(), `"email":"anEmail@gogo.com",`)
-	assert.Contains(t, rr.Body.String(), `"password":"original_password"`)
 }
