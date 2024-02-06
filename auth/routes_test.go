@@ -6,15 +6,20 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/EzequielBPullolil/auth_service/common"
 	"github.com/stretchr/testify/assert"
 )
 
 var server *http.ServeMux
 var url = "/auth"
 
+type MockedRepo struct {
+	common.Repository
+}
+
 func init() {
 	server = http.NewServeMux()
-	HandleAuthRoutes(server)
+	HandleAuthRoutes(server, MockedRepo{})
 }
 func TestAuthSingup(t *testing.T) {
 	body := bytes.NewReader([]byte(`{
