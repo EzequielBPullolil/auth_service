@@ -251,5 +251,3 @@ Both the `PUT /v1/users` and `POST /vi/auth/signup` endpoints have field validat
 |              | Includes at least one number                         | Adds complexity and makes passwords harder to guess.        |
 |              | Includes at least one symbol (special character)     | Further increases password complexity for added security.   |
 |              | Includes at least one uppercase and lowercase letter | Makes passwords more resistant to brute-force attacks.      |
-
-###
