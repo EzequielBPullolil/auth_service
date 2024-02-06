@@ -39,11 +39,11 @@ curl -X GET
 ### response
 
 ```json
-    {
-        "id": [user_id],
-        "name": [user_name],
-        "email": [user_email]
-    }
+{
+  "id": "<user_id>",
+  "name": "<user_name>",
+  "email": "<user_email>"
+}
 ```
 
 ---
@@ -57,30 +57,30 @@ curl -X GET \
  -H "Accept: application/json" \
  -H "Content-Type: application/json" \
  -b "app_token=<app_token>" \
- https://<API_URL>/v1/users
+ https://<API_URL>/v1/users/<some_id>
 ```
 
 ### response
 
 ```json
-    {
-        "id": [user_id],
-        "name": [user_name],
-        "email": [user_email]
-    }
+{
+  "id": "<user_id>",
+  "name": "<user_name>",
+  "email": "<user_email>"
+}
 ```
 
 ---
 
 ### Request
 
-`PUT /v1/users/:id` This endpoints requires a valid app token
+`PUT /v1/users/` This endpoints requires a valid app token
 
 ```bash
 curl -X PUT \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
- -b "app_token=<app_token>;>"
+  -b "app_token=<app_token>; auth_token=<auth_token>;" \
   -d '{
     "name": "<name>",
     "password": "<password>",
@@ -92,11 +92,11 @@ curl -X PUT \
 ### response
 
 ```json
-    {
-        "id": [user_id],
-        "name": [user_name],
-        "email": [user_email]
-    }
+{
+  "id": "<user_id>",
+  "name": "<user_name>",
+  "email": "<user_email>"
+}
 ```
 
 ---
@@ -109,7 +109,7 @@ curl -X PUT \
 curl -X DELETE
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -b "auth_token=<SU_TOKEN>; app_token=<app_token>" \
+  -b "auth_token=<auth_token>; app_token=<app_token>" \
   https://<API_URL>/v1/users
 ```
 
@@ -135,7 +135,7 @@ curl -X DELETE
 curl -X POST \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -b "app_token=<app_token>; auth_token=<auth_token>" \
+  -b "app_token=<app_token>" \
   -d '{
     "name": "<name>",
     "password": "<password>",
@@ -150,12 +150,12 @@ curl -X POST \
 {
   "status": "Successful user registration",
   "message": "Waiting for email validation",
-  "email_validation_link": [email_validation_link],
-  "data" : {
+  "email_validation_link": "<email_validation_link>",
+  "data": {
     "user": {
-        "id": [user_id],
-        "name": [user_name],
-        "email": [user_email],
+      "id": "<user_id>",
+      "name": "<user_name>",
+      "email": "<user_email>"
     }
   }
 }
@@ -171,7 +171,7 @@ curl -X POST \
 curl -X POST \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -b "app_token=<app_token>; auth_token=<auth_token>" \
+  -b "app_token=<app_token>;" \
   -d '{
     "email": "<email>",
     "password": "<password>"
@@ -187,9 +187,9 @@ curl -X POST \
   "data" : {
     "token":[auth_token],
     "user": {
-        "id": [user_id],
-        "name": [user_name],
-        "email": [user_email],
+        "id": "<user_id>",
+        "name": "<user_name>",
+        "email": "<user_email>",
     }
   }
 }
@@ -216,11 +216,11 @@ curl -X POST \
 ```json
 {
   "status": "Valid auth token",
-  "data" : {
+  "data": {
     "user": {
-        "id": [user_id],
-        "name": [user_name],
-        "email": [user_email],
+      "id": "<user_id>",
+      "name": "<user_name>",
+      "email": "<user_email>"
     }
   }
 }
