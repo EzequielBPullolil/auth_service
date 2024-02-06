@@ -18,12 +18,9 @@ func HandleAuthRoutes(s *http.ServeMux, db_inyection common.Repository) {
 			response := fmt.Sprintf(`{
 				"status": "Successful user registration",
 				"data":{
-					"id": "%s",
-					"name": "%s",
-					"email": "%s",
-					
+					%s
 				}
-			}`, entity.GetId(), u.Name, u.Email)
+			}`, entity.ToJson())
 			w.WriteHeader(201)
 			w.Write([]byte(response))
 		}
@@ -38,13 +35,9 @@ func HandleAuthRoutes(s *http.ServeMux, db_inyection common.Repository) {
 				"status": "Successful user login",
 				"data":{
 					"token": "%s",
-					"user":{
-						"name": "%s",
-						"email": "%s",
-					}
-					
+					"user": %s
 				}
-			}`, CreateToken(user.GetId()), u.Name, u.Email)
+			}`, CreateToken(user.GetId()), user.ToJson())
 			w.WriteHeader(201)
 			w.Write([]byte(response))
 		}

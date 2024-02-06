@@ -21,12 +21,16 @@ type MockedRepo struct {
 
 func (c MockedRepo) Create(t common.Entity) (common.Entity, error) {
 	return common.User{
-		Id: "fake_id",
+		Id:    "fake_id",
+		Email: "anEmail@gogo.com",
+		Name:  "ezequiel",
 	}, nil
 }
 func (c MockedRepo) Read(t string) (common.Entity, error) {
 	return common.User{
-		Id: "fake_id",
+		Id:    "fake_id",
+		Name:  "ezequiel",
+		Email: "anEmail@gogo.com",
 	}, nil
 }
 func init() {
@@ -35,8 +39,8 @@ func init() {
 }
 func TestAuthSingup(t *testing.T) {
 	body := bytes.NewReader([]byte(`{
-		"name":"ezequiel",
-		"email":"anEmail@gogo.com",
+		"name": "ezequiel",
+		"email": "anEmail@gogo.com",
 		"password": "original_password"
 	}`))
 	req, err := http.NewRequest("POST", url+"/singup", body)
@@ -55,7 +59,7 @@ func TestAuthSingup(t *testing.T) {
 func TestAuthLogin(t *testing.T) {
 	expectedToken := fmt.Sprintf(`"token": "%s"`, CreateToken("fake_id"))
 	body := bytes.NewReader([]byte(`{
-		"email":"anEmail@gogo.com",
+		"email": "anEmail@gogo.com",
 		"password": "original_password"
 	}`))
 	req, err := http.NewRequest("POST", url+"/login", body)
