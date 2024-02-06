@@ -23,5 +23,6 @@ func TestAuthSingup(t *testing.T) {
 	server.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusCreated, rr.Code)
-	assert.Contains(t, "status", rr.Body.String())
+	assert.Contains(t, rr.Body.String(), "status")
+
 }
