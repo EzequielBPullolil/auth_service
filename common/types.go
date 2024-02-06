@@ -2,6 +2,7 @@ package common
 
 type Entity interface {
 	GetId() string
+	ToJson() string
 }
 
 type Repository interface {
