@@ -1,8 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"net/http"
+)
 
 
 func main() {
-	fmt.Print("hola")	
+	server := http.NewServeMux()
+	log.Println("Server start at port 8030")
+	log.Fatal(http.ListenAndServe(":8030", server))
 }
