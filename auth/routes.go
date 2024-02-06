@@ -18,8 +18,8 @@ func HandleAuthRoutes(s *http.ServeMux) {
 			response := fmt.Sprintf(`{
 				"status": "Successful user registration",
 				"data":{
-					"name":"%s",
-					"email":"%s",
+					"name": "%s",
+					"email": "%s",
 					
 				}
 			}`, u.Name, u.Email)
@@ -37,14 +37,23 @@ func HandleAuthRoutes(s *http.ServeMux) {
 				"data":{
 					"token": "fake_token",
 					"user":{
-						"name":"%s",
-						"email":"%s",
+						"name": "%s",
+						"email": "%s",
 					}
 					
 				}
 			}`, u.Name, u.Email)
 			w.WriteHeader(201)
 			w.Write([]byte(response))
+		}
+	}))
+
+	s.Handle("/auth/validate", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" || r.Method == "post" {
+			w.WriteHeader(200)
+			w.Write([]byte(`{
+				"status": "Valid auth token",
+			}`))
 		}
 	}))
 }

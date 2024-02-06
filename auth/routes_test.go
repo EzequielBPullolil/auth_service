@@ -30,8 +30,8 @@ func TestAuthSingup(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, rr.Code)
 	assert.Contains(t, rr.Body.String(), `"status": "Successful user registration",`)
-	assert.Contains(t, rr.Body.String(), `"name":"ezequiel"`)
-	assert.Contains(t, rr.Body.String(), `"email":"anEmail@gogo.com",`)
+	assert.Contains(t, rr.Body.String(), `"name": "ezequiel"`)
+	assert.Contains(t, rr.Body.String(), `"email": "anEmail@gogo.com",`)
 }
 
 func TestAuthLogin(t *testing.T) {
@@ -48,5 +48,15 @@ func TestAuthLogin(t *testing.T) {
 
 	assert.Contains(t, rr.Body.String(), `"status": "Successful user login",`)
 	assert.Contains(t, rr.Body.String(), `"token": "fake_token"`)
-	assert.Contains(t, rr.Body.String(), `"email":"anEmail@gogo.com",`)
+	assert.Contains(t, rr.Body.String(), `"email": "anEmail@gogo.com",`)
+}
+
+func TestAuthValidate(t *testing.T) {
+	req, err := http.NewRequest("POST", url+"/validate", nil)
+	assert.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	server.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Contains(t, rr.Body.String(), `"status": "Valid auth token",`)
 }
