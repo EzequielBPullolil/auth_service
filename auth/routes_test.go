@@ -17,6 +17,12 @@ type MockedRepo struct {
 	common.Repository
 }
 
+func (c MockedRepo) Create(t common.Entity) (common.Entity, error) {
+	return common.User{
+		Id: "fake_id",
+	}, nil
+}
+
 func init() {
 	server = http.NewServeMux()
 	HandleAuthRoutes(server, MockedRepo{})
@@ -35,6 +41,7 @@ func TestAuthSingup(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, rr.Code)
 	assert.Contains(t, rr.Body.String(), `"status": "Successful user registration",`)
+	assert.Contains(t, rr.Body.String(), `"id": "fake_id"`)
 	assert.Contains(t, rr.Body.String(), `"name": "ezequiel"`)
 	assert.Contains(t, rr.Body.String(), `"email": "anEmail@gogo.com",`)
 }
