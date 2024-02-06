@@ -5,7 +5,7 @@ type Entity interface {
 }
 
 type Repository interface {
-	Create(any)
-	Read(any) Entity
-	Delete(any)
+	Create(Entity) (Entity, error)
+	Read(Entity) (Entity, error)
+	Delete(Entity) error
 }
