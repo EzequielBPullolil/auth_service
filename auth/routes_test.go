@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +17,12 @@ func init() {
 	HandleAuthRoutes(server)
 }
 func TestAuthSingup(t *testing.T) {
-	req, err := http.NewRequest("POST", url+"/singup", http.NoBody)
+	body := bytes.NewReader([]byte(`{
+		"name":"ezequiel",
+		"email":"anEmail@gogo.com",
+		"password": "original_password"
+	}`))
+	req, err := http.NewRequest("POST", url+"/singup", body)
 	assert.NoError(t, err)
 
 	rr := httptest.NewRecorder()
@@ -25,4 +31,7 @@ func TestAuthSingup(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, rr.Code)
 	assert.Contains(t, rr.Body.String(), "status")
 
+	assert.Contains(t, rr.Body.String(), `"name":"ezequiel"`)
+	assert.Contains(t, rr.Body.String(), `"email":"anEmail@gogo.com",`)
+	assert.Contains(t, rr.Body.String(), `"password":"original_password"`)
 }
