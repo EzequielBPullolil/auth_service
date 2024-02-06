@@ -12,28 +12,28 @@ It also ensures high data integrity and security.
 
 The service provides the following endpoints for its components, following the REST-API architecture.
 
-| HTTP Verbs | Endpoints         | Action                                         |
-| :--------: | ----------------- | ---------------------------------------------- |
-|  **GET**   | /v1/users/        | To read user info (need auth token)            |
-|  **GET**   | /v1/users/:id     | To read user info by id (need valid token)     |
-|  **PUT**   | /v1/users/        | To update an existing user (need auth token)   |
-| **DELETE** | /v1/users/        | To delete an existing user (need auth token)   |
-|  **POST**  | /v1/auth/signup   | To sign up a new user account                  |
-|  **POST**  | /v1/auth/login    | To login an existing user and create JWT token |
-|  **GET**   | /v1/auth/validate | To validate user auth token (need auth token)  |
+| HTTP Verbs | Endpoints      | Action                                         |
+| :--------: | -------------- | ---------------------------------------------- |
+|  **GET**   | /users/        | To read user info (need auth token)            |
+|  **GET**   | /users/:id     | To read user info by id (need valid token)     |
+|  **PUT**   | /users/        | To update an existing user (need auth token)   |
+| **DELETE** | /users/        | To delete an existing user (need auth token)   |
+|  **POST**  | /auth/signup   | To sign up a new user account                  |
+|  **POST**  | /auth/login    | To login an existing user and create JWT token |
+|  **GET**   | /auth/validate | To validate user auth token (need auth token)  |
 
 ## users endpoints entry
 
 ### Request
 
-`GET /v1/users/` This endpoint requires a valid JWT token
+`GET /users/` This endpoint requires a valid JWT token
 
 ```bash
 curl -X GET
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -b "auth_token=<app_token>" \
-  https://<API_URL>/v1/users
+  https://<API_URL>/users
 ```
 
 ### response
@@ -50,14 +50,14 @@ curl -X GET
 
 ### Request
 
-`GET /v1/users/:id` This endpoints requires a valid application token
+`GET /users/:id` This endpoints requires a valid application token
 
 ```bash
 curl -X GET \
  -H "Accept: application/json" \
  -H "Content-Type: application/json" \
  -b "app_token=<app_token>" \
- https://<API_URL>/v1/users/<some_id>
+ https://<API_URL>/users/<some_id>
 ```
 
 ### response
@@ -74,7 +74,7 @@ curl -X GET \
 
 ### Request
 
-`PUT /v1/users/` This endpoints requires a valid app token
+`PUT /users/` This endpoints requires a valid app token
 
 ```bash
 curl -X PUT \
@@ -86,7 +86,7 @@ curl -X PUT \
     "password": "<password>",
     "email": "<email>"
   }' \
-  https://<API_URL>/v1/users
+  https://<API_URL>/users
 ```
 
 ### response
@@ -103,14 +103,14 @@ curl -X PUT \
 
 ### Request
 
-`DELETE /v1/users/` This endpoint requires a valid JWT token
+`DELETE /users/` This endpoint requires a valid JWT token
 
 ```bash
 curl -X DELETE
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -b "auth_token=<auth_token>; app_token=<app_token>" \
-  https://<API_URL>/v1/users
+  https://<API_URL>/users
 ```
 
 ### response
@@ -123,13 +123,13 @@ curl -X DELETE
 
 ## auth endpoints entry
 
-#| **POST** | /v1/auth/signup | To sign up a new user account | /
-#| **POST** | /v1/auth/login | To login an existing user and create JWT token | /
-#| **GET** | /v1/auth/validate | To validate user auth token (need auth token) |/
+#| **POST** | /auth/signup | To sign up a new user account | /
+#| **POST** | /auth/login | To login an existing user and create JWT token | /
+#| **GET** | /auth/validate | To validate user auth token (need auth token) |/
 
 ### Request
 
-`POST /v1/auth/singup` This endpoints requires a valid app_token
+`POST /auth/singup` This endpoints requires a valid app_token
 
 ```bash
 curl -X POST \
@@ -141,7 +141,7 @@ curl -X POST \
     "password": "<password>",
     "email": "<email>"
   }' \
-  https://<API_URL>/v1/auth/singup
+  https://<API_URL>/auth/singup
 ```
 
 ### response
@@ -165,7 +165,7 @@ curl -X POST \
 
 ### Request
 
-`POST /v1/auth/login` This endpoints requires a valid app_token
+`POST /auth/login` This endpoints requires a valid app_token
 
 ```bash
 curl -X POST \
@@ -176,7 +176,7 @@ curl -X POST \
     "email": "<email>",
     "password": "<password>"
   }' \
-  https://<API_URL>/v1/auth/login
+  https://<API_URL>/auth/login
 ```
 
 ### response
@@ -199,14 +199,14 @@ curl -X POST \
 
 ### Request
 
-`POST /v1/auth/validate` This endpoints requires a valid app_token and auth_token
+`POST /auth/validate` This endpoints requires a valid app_token and auth_token
 
 ```bash
 curl -X POST \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -b "app_token=<app_token>; auth_token=<auth_token>"
-  https://<API_URL>/v1/auth/validate
+  https://<API_URL>/auth/validate
 ```
 
 ### response
@@ -239,7 +239,7 @@ curl -X POST \
 
 ## Field validation rules
 
-Both the `PUT /v1/users` and `POST /vi/auth/signup` endpoints have field validation, which means that the `name`, `email` and `password` fields are validated using the following rules:
+Both the `PUT /users` and `POST /auth/signup` endpoints have field validation, which means that the `name`, `email` and `password` fields are validated using the following rules:
 
 | Field        | validation criteria                                  | Description                                                 |
 | ------------ | ---------------------------------------------------- | ----------------------------------------------------------- |
