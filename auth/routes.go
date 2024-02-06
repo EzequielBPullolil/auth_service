@@ -33,17 +33,18 @@ func HandleAuthRoutes(s *http.ServeMux, db_inyection common.Repository) {
 		if r.Method == "POST" || r.Method == "post" {
 			var u common.User
 			json.NewDecoder(r.Body).Decode(&u)
+			user, _ := db_inyection.Read(u.GetId())
 			response := fmt.Sprintf(`{
 				"status": "Successful user login",
 				"data":{
-					"token": "fake_token",
+					"token": "%s",
 					"user":{
 						"name": "%s",
 						"email": "%s",
 					}
 					
 				}
-			}`, u.Name, u.Email)
+			}`, CreateToken(user.GetId()), u.Name, u.Email)
 			w.WriteHeader(201)
 			w.Write([]byte(response))
 		}
