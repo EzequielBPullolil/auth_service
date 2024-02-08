@@ -8,17 +8,17 @@ import (
 	"github.com/EzequielBPullolil/auth_service/common"
 )
 
-type UserController struct {
+type AuthController struct {
 	repo common.Repository
 }
 
-func NewUserController(db_repository common.Repository) UserController {
-	return UserController{
+func NewAuthController(db_repository common.Repository) AuthController {
+	return AuthController{
 		repo: db_repository,
 	}
 }
 
-func (uc UserController) SignupUser(w http.ResponseWriter, r *http.Request) {
+func (uc AuthController) SignupUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" || r.Method == "post" {
 		var u common.User
 		json.NewDecoder(r.Body).Decode(&u)
@@ -34,7 +34,7 @@ func (uc UserController) SignupUser(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(response))
 	}
 }
-func (uc UserController) LoginUser(w http.ResponseWriter, r *http.Request) {
+func (uc AuthController) LoginUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" || r.Method == "post" {
 		var u common.User
 		json.NewDecoder(r.Body).Decode(&u)
@@ -51,7 +51,7 @@ func (uc UserController) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (uc UserController) ValidateUserToken(w http.ResponseWriter, r *http.Request) {
+func (uc AuthController) ValidateUserToken(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" || r.Method == "post" {
 		w.WriteHeader(200)
 		w.Write([]byte(`{
