@@ -77,3 +77,11 @@ func TestDeleteUser(t *testing.T) {
 	response := rr.Body.String()
 	assert.Contains(t, response, `"status": "Successful user delete",`)
 }
+
+func TestGetUserById(t *testing.T) {
+	req, err := http.NewRequest("GET", url+"/fake_id", nil)
+	assert.NoError(t, err)
+	rr := httptest.NewRecorder()
+	server.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusOK, rr.Code)
+}
