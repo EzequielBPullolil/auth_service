@@ -42,7 +42,7 @@ func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 				"token": "%s",
 				"user": %s
 			}
-		}`, CreateToken(user.GetId()), user.ToJson())
+		}`, users.CreateToken(user.GetId()), user.ToJson())
 		uc.ResponseWithStatus(response, 201, res)
 	}
 }

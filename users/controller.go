@@ -18,12 +18,17 @@ func NewUserController(db_repository Repository) UserController {
 }
 
 func (uc UserController) GetAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
-	user, _ := uc.repo.Read("as")
+	c, _ := req.Cookie("auth_token")
+	id := GetTokenId(c.Value)
+
+	user, _ := uc.repo.Read(id)
 	uc.ResponseWithStatus(user.ToJson(), 200, res)
 }
 func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
+	c, _ := req.Cookie("auth_token")
+	id := GetTokenId(c.Value)
 	u := uc.GetUserData(req)
-	updated_user, _ := uc.repo.Update("fake_id", u)
+	updated_user, _ := uc.repo.Update(id, u)
 
 	response := fmt.Sprintf(`{
 				"status": "Successful user update",
@@ -33,7 +38,9 @@ func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *h
 	uc.ResponseWithStatus(response, 200, res)
 }
 func (uc UserController) DeleteAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
-	uc.repo.Delete("fake_id")
+	c, _ := req.Cookie("auth_token")
+	id := GetTokenId(c.Value)
+	uc.repo.Delete(id)
 
 	response := fmt.Sprintf(`{
 			"status": "Successful user delete",

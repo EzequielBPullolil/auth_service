@@ -37,6 +37,10 @@ func init() {
 }
 func TestGetAuthenticatedUser(t *testing.T) {
 	req, err := http.NewRequest("GET", url, nil)
+	req.AddCookie(&http.Cookie{
+		Name:  "auth_token",
+		Value: CreateToken("fake_id"),
+	})
 	assert.NoError(t, err)
 
 	rr := httptest.NewRecorder()
@@ -55,6 +59,10 @@ func TestUpdateUser(t *testing.T) {
 		"email": "anEmail@gogo.com"
 	}`))
 	req, err := http.NewRequest("PUT", url, body)
+	req.AddCookie(&http.Cookie{
+		Name:  "auth_token",
+		Value: CreateToken("fake_id"),
+	})
 	assert.NoError(t, err)
 
 	rr := httptest.NewRecorder()
@@ -69,6 +77,10 @@ func TestUpdateUser(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	req, err := http.NewRequest("DELETE", url, nil)
+	req.AddCookie(&http.Cookie{
+		Name:  "auth_token",
+		Value: CreateToken("fake_id"),
+	})
 	assert.NoError(t, err)
 	rr := httptest.NewRecorder()
 	server.ServeHTTP(rr, req)
