@@ -17,10 +17,3 @@ func (u User) ToJson() string {
 		"email": "%s",
 	}`, u.Id, u.Name, u.Email)
 }
-
-type Repository interface {
-	Create(User) (User, error)
-	Read(string) (User, error)
-	Delete(string) error
-	Update(string, User) (User, error)
-}
