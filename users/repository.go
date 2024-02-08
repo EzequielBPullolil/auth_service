@@ -44,6 +44,6 @@ func (r UserRepository) Create(userFields User) (User, error) {
 	userFields.Id = id.String()
 	query := fmt.Sprintf("INSERT INTO users (id, name, password, email) VALUES('%s','%s','%s','%s');", userFields.Id, userFields.Name, userFields.Password, userFields.Email)
 	log.Println(query)
-	r.connectionPool.QueryRow(context.Background(), query)
-	return userFields, nil
+	_, err := r.connectionPool.Exec(context.Background(), query)
+	return userFields, err
 }

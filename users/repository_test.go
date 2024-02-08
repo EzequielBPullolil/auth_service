@@ -37,15 +37,22 @@ func TestCreateUser(t *testing.T) {
 	assert.Equal(t, user.GetId(), "")
 	persistedUser, err := repo.Create(user)
 	assert.NoError(t, err)
+	query := fmt.Sprintf("SELECT id FROM users WHERE name='%s'", persistedUser.Name)
 	t.Run("Should be have id", func(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEqual(t, persistedUser.GetId(), "")
 	})
 	t.Run("Should persist an user", func(t *testing.T) {
 		var response string
-		query := fmt.Sprintf("SELECT id FROM users WHERE name='%s'", persistedUser.Name)
 		assert.NoError(t, err)
 		assert.NoError(t, pool.QueryRow(context.Background(), query).Scan(&response))
 		assert.Equal(t, persistedUser.GetId(), response)
+	})
+	t.Run("Shoul not create an user with the same email", func(t *testing.T) {
+		_, err := repo.Create(user)
+		assert.Error(t, err)
+		var count int
+		repo.connectionPool.QueryRow(context.Background(), "SELECT COUNT(email) FROM users WHERE email='"+persistedUser.Email+"'").Scan(&count)
+		assert.Equal(t, count, 1)
 	})
 }
