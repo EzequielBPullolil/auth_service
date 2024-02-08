@@ -88,10 +88,10 @@ func TestRead(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	var userSuject = User{
-		Id:       "some_id",
-		Name:     "an natural name",
-		Password: "Some password",
-		Email:    "An email",
+		Id:       "a-user-to-update",
+		Name:     "name to update",
+		Password: "password to update",
+		Email:    "aaaemail",
 	}
 	query := fmt.Sprintf("INSERT INTO users (id, name, password, email) VALUES('%s','%s','%s','%s');",
 		userSuject.Id,
@@ -99,11 +99,23 @@ func TestUpdate(t *testing.T) {
 		userSuject.Password,
 		userSuject.Email)
 	repo.connectionPool.Exec(context.Background(), query)
-
+	var newFields = User{
+		Name:     "Bakan",
+		Password: "Bakan",
+		Email:    "Bakan",
+	}
 	t.Run("Should return error if user non exist", func(t *testing.T) {
-		u, err := repo.Update("nonExistingID", User{})
-
+		u, err := repo.Update("nonExistingID", newFields)
 		assert.Nil(t, u)
 		assert.Error(t, err)
+	})
+	t.Run("Should update user in db", func(t *testing.T) {
+		u, err := repo.Update(userSuject.Id, newFields)
+
+		assert.NotNil(t, u)
+		assert.NoError(t, err)
+
+		assert.Equal(t, u.Name, newFields.Name)
+		assert.Equal(t, u.Email, newFields.Email)
 	})
 }
