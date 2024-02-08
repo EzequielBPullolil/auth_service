@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -62,8 +63,9 @@ func (r UserRepository) Read(user_id string) (*User, error) {
 func (r UserRepository) Update(user_id string, new_fields User) (*User, error) {
 	var user User
 
-	//	err := r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Name, &user.Email, &user.Password, &user.Id)
-
+	if new_fields.Id != "" {
+		return nil, errors.New("Can't update user ID")
+	}
 	err := r.connectionPool.QueryRow(
 		context.Background(),
 		"UPDATE users SET name=$1, password=$2, email=$3 WHERE id=$4 RETURNING id, name, password, email;",

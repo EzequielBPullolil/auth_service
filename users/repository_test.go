@@ -118,4 +118,11 @@ func TestUpdate(t *testing.T) {
 		assert.Equal(t, u.Name, newFields.Name)
 		assert.Equal(t, u.Email, newFields.Email)
 	})
+
+	t.Run("Cant update ID", func(t *testing.T) {
+		u, err := repo.Update(userSuject.Id, User{Id: "hola"})
+
+		assert.Nil(t, u)
+		assert.ErrorContains(t, err, "Can't update user ID")
+	})
 }
