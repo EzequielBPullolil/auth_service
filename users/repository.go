@@ -76,3 +76,12 @@ func (r UserRepository) Update(user_id string, new_fields User) (*User, error) {
 
 	return &user, err
 }
+
+func (r UserRepository) Delete(user_id string) error {
+	if result, err := r.connectionPool.Exec(context.Background(), "DELETE FROM users WHERE id=$1;", user_id); err != nil {
+		return err
+	} else if result.RowsAffected() == 0 {
+		return errors.New(fmt.Sprintf("There is no user with the ID: '%s'", user_id))
+	}
+	return nil
+}

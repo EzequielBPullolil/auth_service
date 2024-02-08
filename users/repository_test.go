@@ -126,3 +126,23 @@ func TestUpdate(t *testing.T) {
 		assert.ErrorContains(t, err, "Can't update user ID")
 	})
 }
+
+func TestDelete(t *testing.T) {
+	var userSuject = User{
+		Id:       "a-user-to-delete",
+		Name:     "name to update",
+		Password: "password to update",
+		Email:    "user@test.delete.com",
+	}
+	query := fmt.Sprintf("INSERT INTO users (id, name, password, email) VALUES('%s','%s','%s','%s');",
+		userSuject.Id,
+		userSuject.Name,
+		userSuject.Password,
+		userSuject.Email)
+	repo.connectionPool.Exec(context.Background(), query)
+
+	t.Run("Shoul return error if User dont exist", func(t *testing.T) {
+		err := repo.Delete("fake_id")
+		assert.ErrorContains(t, err, "There is no user with the ID: 'fake_id'")
+	})
+}
