@@ -28,7 +28,7 @@ func init() {
 
 	repo.CreateTables()
 }
-func TestCreateUser(t *testing.T) {
+func TestCreate(t *testing.T) {
 	var user = User{
 		Name:     "test_user",
 		Password: "Test_password",
@@ -54,5 +54,26 @@ func TestCreateUser(t *testing.T) {
 		var count int
 		repo.connectionPool.QueryRow(context.Background(), "SELECT COUNT(email) FROM users WHERE email='"+persistedUser.Email+"'").Scan(&count)
 		assert.Equal(t, count, 1)
+	})
+}
+
+func TestRead(t *testing.T) {
+	userSuject := User{
+		Id:       "some_id",
+		Name:     "an natural name",
+		Password: "Some password",
+		Email:    "An email",
+	}
+	query := fmt.Sprintf("INSERT INTO users (id, name, password, email) VALUES('%s','%s','%s','%s');",
+		userSuject.Id,
+		userSuject.Name,
+		userSuject.Password,
+		userSuject.Email)
+	repo.connectionPool.Exec(context.Background(), query)
+
+	t.Run("Return nil if the user non Exist", func(t *testing.T) {
+		geted_user, err := repo.Read("NotRegisteredId")
+		assert.NoError(t, err)
+		assert.Nil(t, geted_user)
 	})
 }

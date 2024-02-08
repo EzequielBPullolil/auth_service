@@ -24,8 +24,8 @@ func (c MockedRepo) Update(t string, e User) (User, error) {
 func (c MockedRepo) Delete(id string) error {
 	return nil
 }
-func (c MockedRepo) Read(t string) (User, error) {
-	return User{
+func (c MockedRepo) Read(t string) (*User, error) {
+	return &User{
 		Id:    "fake_id",
 		Name:  "palacios",
 		Email: "palacios@gmail.com",

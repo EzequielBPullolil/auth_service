@@ -11,7 +11,7 @@ import (
 
 type Repository interface {
 	Create(User) (User, error)
-	Read(string) (User, error)
+	Read(string) (*User, error)
 	Delete(string) error
 	Update(string, User) (User, error)
 	CreateTables() error
@@ -46,4 +46,9 @@ func (r UserRepository) Create(userFields User) (User, error) {
 	log.Println(query)
 	_, err := r.connectionPool.Exec(context.Background(), query)
 	return userFields, err
+}
+
+func (r UserRepository) Read(user_id string) (*User, error) {
+
+	return nil, nil
 }
