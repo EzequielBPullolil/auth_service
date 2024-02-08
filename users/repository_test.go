@@ -1,15 +1,30 @@
 package users
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"testing"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 )
 
 var repo UserRepository
+var pool *pgxpool.Pool
 
 func init() {
-	repo = NewUserRepository()
+	pool, err := pgxpool.New(context.Background(), "postgresql://ezequiel-k:ezequiel_dev_pass@localhost:5432/auth_systemtest")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err = pool.Ping(context.Background()); err != nil {
+		log.Fatal(err)
+	}
+
+	defer pool.Close()
+	repo = NewUserRepository(pool)
 
 	repo.CreateTables()
 }
