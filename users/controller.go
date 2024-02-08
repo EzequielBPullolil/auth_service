@@ -13,6 +13,7 @@ import (
 
 type UserController struct {
 	repo common.Repository
+	common.Controller
 }
 
 func NewUserController(db_repository common.Repository) UserController {
@@ -42,10 +43,7 @@ func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *h
 				"data": %s
 			}`, updated_user.ToJson())
 
-	if _, err := res.Write([]byte(response)); err != nil {
-		_, _, line, _ := runtime.Caller(0)
-		log.Printf("Error en la línea %d: %s\n", line, err.Error())
-	}
+	uc.ResponseWithStatus(response, 200, res)
 }
 func (uc UserController) DeleteAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
 	uc.repo.Delete("fake_id")
@@ -54,20 +52,13 @@ func (uc UserController) DeleteAuthenticatedUser(res http.ResponseWriter, req *h
 			"status": "Successful user delete",
 		}`)
 
-	if _, err := res.Write([]byte(response)); err != nil {
-		_, _, line, _ := runtime.Caller(0)
-		log.Printf("Error en la línea %d: %s\n", line, err.Error())
-	}
+	uc.ResponseWithStatus(response, 200, res)
 }
 
 func (uc UserController) GetUserById(res http.ResponseWriter, req *http.Request) {
 	id := strings.TrimPrefix(req.URL.Path, "/users/")
 	user, _ := uc.repo.Read(id)
-	res.WriteHeader(200)
-	if _, err := res.Write([]byte(user.ToJson())); err != nil {
-		_, _, line, _ := runtime.Caller(0)
-		log.Printf("Error en la línea %d: %s\n", line, err.Error())
-	}
+	uc.ResponseWithStatus(user.ToJson(), 200, res)
 }
 
 func (uc UserController) HandleMethod(w http.ResponseWriter, r *http.Request) {

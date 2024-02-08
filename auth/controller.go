@@ -10,6 +10,7 @@ import (
 
 type AuthController struct {
 	repo common.Repository
+	common.Controller
 }
 
 func NewAuthController(db_repository common.Repository) AuthController {
@@ -18,7 +19,7 @@ func NewAuthController(db_repository common.Repository) AuthController {
 	}
 }
 
-func (uc AuthController) SignupUser(w http.ResponseWriter, r *http.Request) {
+func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" || r.Method == "post" {
 		var u common.User
 		json.NewDecoder(r.Body).Decode(&u)
@@ -30,11 +31,10 @@ func (uc AuthController) SignupUser(w http.ResponseWriter, r *http.Request) {
 				%s
 			}
 		}`, entity.ToJson())
-		w.WriteHeader(201)
-		w.Write([]byte(response))
+		uc.ResponseWithStatus(response, 201, res)
 	}
 }
-func (uc AuthController) LoginUser(w http.ResponseWriter, r *http.Request) {
+func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" || r.Method == "post" {
 		var u common.User
 		json.NewDecoder(r.Body).Decode(&u)
@@ -46,16 +46,14 @@ func (uc AuthController) LoginUser(w http.ResponseWriter, r *http.Request) {
 				"user": %s
 			}
 		}`, CreateToken(user.GetId()), user.ToJson())
-		w.WriteHeader(201)
-		w.Write([]byte(response))
+		uc.ResponseWithStatus(response, 201, res)
 	}
 }
 
-func (uc AuthController) ValidateUserToken(w http.ResponseWriter, r *http.Request) {
+func (uc AuthController) ValidateUserToken(res http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" || r.Method == "post" {
-		w.WriteHeader(200)
-		w.Write([]byte(`{
+		uc.ResponseWithStatus(`{
 			"status": "Valid auth token",
-		}`))
+		}`, 200, res)
 	}
 }
