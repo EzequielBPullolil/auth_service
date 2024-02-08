@@ -22,3 +22,14 @@ func GetTokenId(tokenString string) string {
 	}
 	return ""
 }
+
+func ValidateToken(tokenString string) bool {
+	t, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte("secret"), nil // Aquí debes usar la clave secreta con la que se firmó el token
+	})
+	if _, ok := t.Claims.(jwt.MapClaims); ok && t.Valid {
+		return true
+	}
+
+	return false
+}

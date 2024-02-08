@@ -90,7 +90,7 @@ func TestAuthValidate(t *testing.T) {
 	t.Run("Should response bad if missing auth_token", func(t *testing.T) {
 		server.ServeHTTP(rr, req)
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
-		assert.Contains(t, rr.Body.String(), `"status": "missing auth token",`)
+		assert.Contains(t, rr.Body.String(), `"status": "Missing auth token",`)
 	})
 	t.Run("Should response valid auth_token", func(t *testing.T) {
 		server.ServeHTTP(rr, req)

@@ -49,8 +49,22 @@ func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 
 func (uc AuthController) ValidateUserToken(res http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" || r.Method == "post" {
-		uc.ResponseWithStatus(`{
-			"status": "Valid auth token",
-		}`, 200, res)
+		c, err := r.Cookie("auth_token")
+		if err != nil {
+			uc.ResponseWithStatus(`{
+				"status": "Missing auth token",
+			}`, 400, res)
+		} else {
+			if users.ValidateToken(c) {
+				uc.ResponseWithStatus(`{
+					"status": "Valid auth token",
+				}`, 200, res)
+
+			} else {
+				uc.ResponseWithStatus(`{
+					"status": "Inalid auth token",
+				}`, 200, res)
+			}
+		}
 	}
 }
