@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -21,8 +20,7 @@ func NewAuthController(db_repository common.Repository) AuthController {
 
 func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" || r.Method == "post" {
-		var u common.User
-		json.NewDecoder(r.Body).Decode(&u)
+		u := uc.GetUserData(r)
 		entity, _ := uc.repo.Create(u)
 
 		response := fmt.Sprintf(`{
@@ -36,8 +34,7 @@ func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
 }
 func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" || r.Method == "post" {
-		var u common.User
-		json.NewDecoder(r.Body).Decode(&u)
+		u := uc.GetUserData(r)
 		user, _ := uc.repo.Read(u.GetId())
 		response := fmt.Sprintf(`{
 			"status": "Successful user login",
