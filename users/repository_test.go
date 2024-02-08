@@ -14,7 +14,8 @@ var repo UserRepository
 var pool *pgxpool.Pool
 
 func init() {
-	pool, err := pgxpool.New(context.Background(), "postgresql://ezequiel-k:ezequiel_dev_pass@localhost:5432/auth_systemtest")
+	var err error
+	pool, err = pgxpool.New(context.Background(), "postgresql://ezequiel-k:ezequiel_dev_pass@localhost:5432/auth_systemtest")
 	if err != nil {
 		log.Fatal(err)
 	}
