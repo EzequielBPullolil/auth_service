@@ -30,14 +30,23 @@ func init() {
 	repo.CreateTables()
 }
 func TestCreateUser(t *testing.T) {
-	user := User{
+	var user = User{
 		Name:     "test_user",
 		Password: "Test_password",
 		Email:    "Test_email",
 	}
 	t.Run("Should be have id", func(t *testing.T) {
-		user, err := repo.Create(user)
+		assert.Equal(t, user.GetId(), "")
+		persistedUser, err := repo.Create(user)
 		assert.NoError(t, err)
-		assert.NotEqual(t, user.GetId(), "")
+		assert.NotEqual(t, persistedUser.GetId(), "")
+	})
+	t.Run("Should persist an user", func(t *testing.T) {
+		var response string
+		persistedUser, err := repo.Create(user)
+		query := fmt.Sprintf("SELECT id FROM users WHERE name='%s'", persistedUser.Name)
+		assert.NoError(t, err)
+		assert.NoError(t, pool.QueryRow(context.Background(), query).Scan(&response))
+		assert.Equal(t, persistedUser.GetId(), response)
 	})
 }
