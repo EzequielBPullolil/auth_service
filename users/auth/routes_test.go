@@ -76,10 +76,25 @@ func TestAuthLogin(t *testing.T) {
 
 func TestAuthValidate(t *testing.T) {
 	req, err := http.NewRequest("POST", url+"/validate", nil)
-	assert.NoError(t, err)
-
 	rr := httptest.NewRecorder()
-	server.ServeHTTP(rr, req)
-	assert.Equal(t, http.StatusOK, rr.Code)
-	assert.Contains(t, rr.Body.String(), `"status": "Valid auth token",`)
+	assert.NoError(t, err)
+	t.Run("Should be invalid response if auth_token is invalid", func(t *testing.T) {
+		req.AddCookie(&http.Cookie{
+			Name:  "auth_token",
+			Value: "a bad token",
+		})
+		server.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assert.Contains(t, rr.Body.String(), `"status": "Invalid auth token",`)
+	})
+	t.Run("Should response bad if missing auth_token", func(t *testing.T) {
+		server.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assert.Contains(t, rr.Body.String(), `"status": "missing auth token",`)
+	})
+	t.Run("Should response valid auth_token", func(t *testing.T) {
+		server.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusOK, rr.Code)
+		assert.Contains(t, rr.Body.String(), `"status": "Valid auth token",`)
+	})
 }
