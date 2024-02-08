@@ -26,8 +26,8 @@ func (c MockedRepo) Create(t users.User) (users.User, error) {
 		Name:  "ezequiel",
 	}, nil
 }
-func (c MockedRepo) Read(t string) (users.User, error) {
-	return users.User{
+func (c MockedRepo) Read(t string) (*users.User, error) {
+	return &users.User{
 		Id:    "fake_id",
 		Name:  "ezequiel",
 		Email: "anEmail@gogo.com",
