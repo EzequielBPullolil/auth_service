@@ -141,8 +141,15 @@ func TestDelete(t *testing.T) {
 		userSuject.Email)
 	repo.connectionPool.Exec(context.Background(), query)
 
-	t.Run("Shoul return error if User dont exist", func(t *testing.T) {
+	t.Run("Should return error if User dont exist", func(t *testing.T) {
 		err := repo.Delete("fake_id")
 		assert.ErrorContains(t, err, "There is no user with the ID: 'fake_id'")
+	})
+
+	t.Run("Should delete User in DB if erro == nil ", func(t *testing.T) {
+		assert.Nil(t, repo.Delete(userSuject.Id))
+		var count int
+		repo.connectionPool.QueryRow(context.Background(), "SELECT COUNT(id) FROM users WHERE id='"+userSuject.Id+"'").Scan(&count)
+		assert.Equal(t, count, 0)
 	})
 }
