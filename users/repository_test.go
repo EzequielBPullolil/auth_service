@@ -58,7 +58,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	userSuject := User{
+	var userSuject = User{
 		Id:       "some_id",
 		Name:     "an natural name",
 		Password: "Some password",
@@ -75,5 +75,13 @@ func TestRead(t *testing.T) {
 		geted_user, err := repo.Read("NotRegisteredId")
 		assert.NoError(t, err)
 		assert.Nil(t, geted_user)
+	})
+	t.Run("Should return an User with the expected fiels", func(t *testing.T) {
+		geted_user, err := repo.Read(userSuject.Id)
+		assert.NoError(t, err)
+		assert.NotNil(t, geted_user)
+		assert.Equal(t, userSuject.Name, geted_user.Name)
+		assert.Equal(t, userSuject.Email, geted_user.Email)
+		assert.Equal(t, userSuject.Id, geted_user.Id)
 	})
 }

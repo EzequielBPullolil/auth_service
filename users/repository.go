@@ -49,6 +49,12 @@ func (r UserRepository) Create(userFields User) (User, error) {
 }
 
 func (r UserRepository) Read(user_id string) (*User, error) {
+	var user User
+	query := fmt.Sprintf("SELECT * FROM users WHERE id='%s';", user_id)
 
-	return nil, nil
+	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
+	if user.Name == "" {
+		return nil, nil
+	}
+	return &user, nil
 }
