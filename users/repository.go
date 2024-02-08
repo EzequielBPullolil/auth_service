@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -55,6 +56,17 @@ func (r UserRepository) Read(user_id string) (*User, error) {
 	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
 	if user.Name == "" {
 		return nil, nil
+	}
+	return &user, nil
+}
+
+func (r UserRepository) Update(user_id string, new_fields User) (*User, error) {
+	var user User
+	query := fmt.Sprintf("UPDATE users SET (id, name, password, email) VALUES('%s','%s','%s') WHERE id='%s';", user_id, new_fields.Name, new_fields.Password, new_fields.Email)
+	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
+
+	if user.Name == "" {
+		return nil, errors.New("")
 	}
 	return &user, nil
 }
