@@ -14,7 +14,7 @@ func CreateToken(id string) string {
 
 func GetTokenId(tokenString string) string {
 	t, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil // Aquí debes usar la clave secreta con la que se firmó el token
+		return []byte("secret"), nil
 	})
 	if claims, ok := t.Claims.(jwt.MapClaims); ok && t.Valid {
 		id := claims["id"].(string)
@@ -25,11 +25,9 @@ func GetTokenId(tokenString string) string {
 
 func ValidateToken(tokenString string) bool {
 	t, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil // Aquí debes usar la clave secreta con la que se firmó el token
-	})
-	if _, ok := t.Claims.(jwt.MapClaims); ok && t.Valid {
-		return true
-	}
 
-	return false
+		return []byte("secret"), nil
+	})
+	_, ok := t.Claims.(jwt.MapClaims)
+	return ok && t.Valid
 }

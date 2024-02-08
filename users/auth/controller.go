@@ -55,7 +55,7 @@ func (uc AuthController) ValidateUserToken(res http.ResponseWriter, r *http.Requ
 				"status": "Missing auth token",
 			}`, 400, res)
 		} else {
-			if users.ValidateToken(c) {
+			if users.ValidateToken(c.Value) {
 				uc.ResponseWithStatus(`{
 					"status": "Valid auth token",
 				}`, 200, res)
