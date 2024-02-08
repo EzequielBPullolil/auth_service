@@ -19,14 +19,14 @@ type MockedRepo struct {
 	users.Repository
 }
 
-func (c MockedRepo) Create(t users.Entity) (users.Entity, error) {
+func (c MockedRepo) Create(t users.User) (users.User, error) {
 	return users.User{
 		Id:    "fake_id",
 		Email: "anEmail@gogo.com",
 		Name:  "ezequiel",
 	}, nil
 }
-func (c MockedRepo) Read(t string) (users.Entity, error) {
+func (c MockedRepo) Read(t string) (users.User, error) {
 	return users.User{
 		Id:    "fake_id",
 		Name:  "ezequiel",

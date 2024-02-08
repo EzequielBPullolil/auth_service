@@ -17,14 +17,14 @@ type MockedRepo struct {
 	Repository
 }
 
-func (c MockedRepo) Update(t string, e Entity) (Entity, error) {
+func (c MockedRepo) Update(t string, e User) (User, error) {
 	return e, nil
 
 }
 func (c MockedRepo) Delete(id string) error {
 	return nil
 }
-func (c MockedRepo) Read(t string) (Entity, error) {
+func (c MockedRepo) Read(t string) (User, error) {
 	return User{
 		Id:    "fake_id",
 		Name:  "palacios",
