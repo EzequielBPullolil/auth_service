@@ -9,22 +9,8 @@ import (
 )
 
 func HandleAuthRoutes(s *http.ServeMux, db_inyection common.Repository) {
-	s.Handle("/auth/singup", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "POST" || r.Method == "post" {
-			var u common.User
-			json.NewDecoder(r.Body).Decode(&u)
-			entity, _ := db_inyection.Create(u)
-
-			response := fmt.Sprintf(`{
-				"status": "Successful user registration",
-				"data":{
-					%s
-				}
-			}`, entity.ToJson())
-			w.WriteHeader(201)
-			w.Write([]byte(response))
-		}
-	}))
+	user_controller := NewUserController(db_inyection)
+	s.Handle("/auth/singup", http.HandlerFunc(user_controller.SignupUser))
 
 	s.Handle("/auth/login", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" || r.Method == "post" {
