@@ -2,8 +2,10 @@ package users
 
 import (
 	"context"
+	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -27,7 +29,7 @@ func NewUserRepository(pool *pgxpool.Pool) UserRepository {
 
 func (r UserRepository) CreateTables() {
 	_, err := r.connectionPool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS users (
-		id SERIAL PRIMARY KEY,
+		id VARCHAR PRIMARY KEY,
 		name VARCHAR NOT NULL,
 		email VARCHAR UNIQUE NOT NULL,
 		password VARCHAR NOT NULL
@@ -38,6 +40,10 @@ func (r UserRepository) CreateTables() {
 }
 
 func (r UserRepository) Create(userFields User) (User, error) {
-	userFields.Id = "an id"
+	id, _ := uuid.NewUUID()
+	userFields.Id = id.String()
+	query := fmt.Sprintf("INSERT INTO users (id, name, password, email) VALUES('%s','%s','%s','%s');", userFields.Id, userFields.Name, userFields.Password, userFields.Email)
+	log.Println(query)
+	r.connectionPool.QueryRow(context.Background(), query)
 	return userFields, nil
 }

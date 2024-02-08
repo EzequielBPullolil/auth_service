@@ -23,8 +23,7 @@ func init() {
 	if err = pool.Ping(context.Background()); err != nil {
 		log.Fatal(err)
 	}
-
-	defer pool.Close()
+	pool.QueryRow(context.Background(), "delete from users;")
 	repo = NewUserRepository(pool)
 
 	repo.CreateTables()
@@ -35,15 +34,15 @@ func TestCreateUser(t *testing.T) {
 		Password: "Test_password",
 		Email:    "Test_email",
 	}
+	assert.Equal(t, user.GetId(), "")
+	persistedUser, err := repo.Create(user)
+	assert.NoError(t, err)
 	t.Run("Should be have id", func(t *testing.T) {
-		assert.Equal(t, user.GetId(), "")
-		persistedUser, err := repo.Create(user)
 		assert.NoError(t, err)
 		assert.NotEqual(t, persistedUser.GetId(), "")
 	})
 	t.Run("Should persist an user", func(t *testing.T) {
 		var response string
-		persistedUser, err := repo.Create(user)
 		query := fmt.Sprintf("SELECT id FROM users WHERE name='%s'", persistedUser.Name)
 		assert.NoError(t, err)
 		assert.NoError(t, pool.QueryRow(context.Background(), query).Scan(&response))
