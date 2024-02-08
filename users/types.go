@@ -1,4 +1,4 @@
-package common
+package users
 
 type Entity interface {
 	GetId() string

@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/EzequielBPullolil/auth_service/common"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,18 +14,18 @@ var url = "/users"
 
 // Simulated repo
 type MockedRepo struct {
-	common.Repository
+	Repository
 }
 
-func (c MockedRepo) Update(t string, e common.Entity) (common.Entity, error) {
+func (c MockedRepo) Update(t string, e Entity) (Entity, error) {
 	return e, nil
 
 }
 func (c MockedRepo) Delete(id string) error {
 	return nil
 }
-func (c MockedRepo) Read(t string) (common.Entity, error) {
-	return common.User{
+func (c MockedRepo) Read(t string) (Entity, error) {
+	return User{
 		Id:    "fake_id",
 		Name:  "palacios",
 		Email: "palacios@gmail.com",

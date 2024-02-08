@@ -3,10 +3,10 @@ package auth
 import (
 	"net/http"
 
-	"github.com/EzequielBPullolil/auth_service/common"
+	"github.com/EzequielBPullolil/auth_service/users"
 )
 
-func HandleAuthRoutes(s *http.ServeMux, db_inyection common.Repository) {
+func HandleAuthRoutes(s *http.ServeMux, db_inyection users.Repository) {
 	auth_controller := NewAuthController(db_inyection)
 	s.Handle("/auth/singup", http.HandlerFunc(auth_controller.SignupUser))
 	s.Handle("/auth/login", http.HandlerFunc(auth_controller.LoginUser))

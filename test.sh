@@ -1,0 +1,1 @@
+gotestsum --watch --rerun-fails --format testname

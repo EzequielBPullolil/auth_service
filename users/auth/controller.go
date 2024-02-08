@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/EzequielBPullolil/auth_service/common"
+	"github.com/EzequielBPullolil/auth_service/users"
 )
 
 type AuthController struct {
-	repo common.Repository
-	common.Controller
+	repo users.Repository
+	users.Controller
 }
 
-func NewAuthController(db_repository common.Repository) AuthController {
+func NewAuthController(db_repository users.Repository) AuthController {
 	return AuthController{
 		repo: db_repository,
 	}
