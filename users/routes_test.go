@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,10 +18,9 @@ type MockedRepo struct {
 	common.Repository
 }
 
-func (c MockedRepo) Create(t common.Entity) (common.Entity, error) {
-	return common.User{
-		Id: "fake_id",
-	}, nil
+func (c MockedRepo) Update(t string, e common.Entity) (common.Entity, error) {
+	return e, nil
+
 }
 func (c MockedRepo) Read(t string) (common.Entity, error) {
 	return common.User{
@@ -44,4 +44,22 @@ func TestGetAuthenticatedUser(t *testing.T) {
 	assert.Contains(t, rr.Body.String(), `"id": "fake_id"`)
 	assert.Contains(t, rr.Body.String(), `"name": "palacios"`)
 	assert.Contains(t, rr.Body.String(), `"email": "palacios@gmail.com",`)
+}
+
+func TestUpdateUser(t *testing.T) {
+	body := bytes.NewReader([]byte(`{
+		"name": "new_name",
+		"password": "fasdsad",
+		"email": "anEmail@gogo.com"
+	}`))
+	req, err := http.NewRequest("PUT", url, body)
+	assert.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	server.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusOK, rr.Code)
+
+	response := rr.Body.String()
+	assert.Contains(t, response, `"status": "Successful user update",`)
+	assert.Contains(t, response, `"name": "new_name",`)
 }
