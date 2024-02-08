@@ -8,6 +8,6 @@ type Entity interface {
 type Repository interface {
 	Create(Entity) (Entity, error)
 	Read(string) (Entity, error)
-	Delete(Entity) error
+	Delete(string) error
 	Update(string, Entity) (Entity, error)
 }

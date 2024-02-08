@@ -38,6 +38,16 @@ func HandleUserRoute(s *http.ServeMux, db_inyection common.Repository) {
 				_, _, line, _ := runtime.Caller(0)
 				log.Fatalf("Error en la línea %d: %s\n", line, err.Error())
 			}
+		case "DELETE":
+			db_inyection.Delete("fake_id")
+
+			response := fmt.Sprintf(`{
+				"status": "Successful user delete",
+			}`)
+			if _, err := w.Write([]byte(response)); err != nil {
+				_, _, line, _ := runtime.Caller(0)
+				log.Fatalf("Error en la línea %d: %s\n", line, err.Error())
+			}
 		}
 	}))
 }

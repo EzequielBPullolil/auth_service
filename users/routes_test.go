@@ -22,6 +22,9 @@ func (c MockedRepo) Update(t string, e common.Entity) (common.Entity, error) {
 	return e, nil
 
 }
+func (c MockedRepo) Delete(id string) error {
+	return nil
+}
 func (c MockedRepo) Read(t string) (common.Entity, error) {
 	return common.User{
 		Id:    "fake_id",
@@ -62,4 +65,15 @@ func TestUpdateUser(t *testing.T) {
 	response := rr.Body.String()
 	assert.Contains(t, response, `"status": "Successful user update",`)
 	assert.Contains(t, response, `"name": "new_name",`)
+	assert.Contains(t, response, `"email": "anEmail@gogo.com"`)
+}
+
+func TestDeleteUser(t *testing.T) {
+	req, err := http.NewRequest("DELETE", url, nil)
+	assert.NoError(t, err)
+	rr := httptest.NewRecorder()
+	server.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusOK, rr.Code)
+	response := rr.Body.String()
+	assert.Contains(t, response, `"status": "Successful user delete",`)
 }
