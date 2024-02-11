@@ -14,7 +14,7 @@ type Repository interface {
 	Create(User) (User, error)
 	Read(string) (*User, error)
 	Delete(string) error
-	Update(string, User) (User, error)
+	Update(string, User) (*User, error)
 	CreateTables() error
 }
 
@@ -23,21 +23,20 @@ type UserRepository struct {
 }
 
 func NewUserRepository(pool *pgxpool.Pool) UserRepository {
+	
 	return UserRepository{
 		connectionPool: pool,
 	}
 }
 
-func (r UserRepository) CreateTables() {
+func (r UserRepository) CreateTables() error {
 	_, err := r.connectionPool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS users (
 		id VARCHAR PRIMARY KEY,
 		name VARCHAR NOT NULL,
 		email VARCHAR UNIQUE NOT NULL,
 		password VARCHAR NOT NULL
 	);`)
-	if err != nil {
-		log.Println("Error creating tables")
-	}
+	return err
 }
 
 func (r UserRepository) Create(userFields User) (User, error) {
@@ -55,7 +54,7 @@ func (r UserRepository) Read(user_id string) (*User, error) {
 
 	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
 	if user.Name == "" {
-		return nil, nil
+		return nil, errors.New("unregistered user")
 	}
 	return &user, nil
 }
