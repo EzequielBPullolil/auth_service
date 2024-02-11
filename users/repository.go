@@ -15,6 +15,7 @@ type Repository interface {
 	Read(string) (*User, error)
 	Delete(string) error
 	Update(string, User) (*User, error)
+	GetBy(string, string) (*User, error)
 	CreateTables() error
 }
 
@@ -23,7 +24,7 @@ type UserRepository struct {
 }
 
 func NewUserRepository(pool *pgxpool.Pool) UserRepository {
-	
+
 	return UserRepository{
 		connectionPool: pool,
 	}
@@ -83,4 +84,15 @@ func (r UserRepository) Delete(user_id string) error {
 		return errors.New(fmt.Sprintf("There is no user with the ID: '%s'", user_id))
 	}
 	return nil
+}
+
+func (r UserRepository) GetBy(field, value string) (*User, error) {
+	var user User
+	query := fmt.Sprintf("SELECT * FROM users WHERE %s='%s';", field, value)
+
+	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
+	if user.Name == "" {
+		return nil, errors.New("unregistered user")
+	}
+	return &user, nil
 }
