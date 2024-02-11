@@ -17,8 +17,8 @@ type MockedRepo struct {
 	Repository
 }
 
-func (c MockedRepo) Update(t string, e User) (User, error) {
-	return e, nil
+func (c MockedRepo) Update(t string, e User) (*User, error) {
+	return &e, nil
 
 }
 func (c MockedRepo) Delete(id string) error {
