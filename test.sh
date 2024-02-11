@@ -1,1 +1,1 @@
-gotestsum --watch --rerun-fails --format testname
+gotestsum --watch  --hide-summary=output --rerun-fails --format testname

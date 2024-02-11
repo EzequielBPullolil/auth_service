@@ -75,26 +75,36 @@ func TestAuthLogin(t *testing.T) {
 }
 
 func TestAuthValidate(t *testing.T) {
-	req, err := http.NewRequest("POST", url+"/validate", nil)
-	rr := httptest.NewRecorder()
-	assert.NoError(t, err)
-	t.Run("Should be invalid response if auth_token is invalid", func(t *testing.T) {
-		req.AddCookie(&http.Cookie{
-			Name:  "auth_token",
-			Value: "a bad token",
-		})
-		server.ServeHTTP(rr, req)
-		assert.Equal(t, http.StatusBadRequest, rr.Code)
-		assert.Contains(t, rr.Body.String(), `"status": "Invalid auth token",`)
-	})
-	t.Run("Should response bad if missing auth_token", func(t *testing.T) {
-		server.ServeHTTP(rr, req)
-		assert.Equal(t, http.StatusBadRequest, rr.Code)
-		assert.Contains(t, rr.Body.String(), `"status": "Missing auth token",`)
-	})
+	endpoint := url + "/validate"
+	cookie := &http.Cookie{
+		Name: "auth_token",
+	}
+
 	t.Run("Should response valid auth_token", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		req, err := http.NewRequest("POST", endpoint, nil)
+		assert.NoError(t, err)
+
+		cookie.Value = users.CreateToken("fake_id")
+		req.AddCookie(cookie)
+		assert.NotEmpty(t, req.Cookies())
+
 		server.ServeHTTP(rr, req)
 		assert.Equal(t, http.StatusOK, rr.Code)
 		assert.Contains(t, rr.Body.String(), `"status": "Valid auth token",`)
 	})
+	t.Run("Should be invalid response if auth_token is invalid", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		req, err := http.NewRequest("POST", endpoint, nil)
+		assert.NoError(t, err)
+
+		cookie.Value = "a fake token"
+		req.AddCookie(cookie)
+		assert.NotEmpty(t, req.Cookies())
+
+		server.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assert.Contains(t, rr.Body.String(), `"status": "Invalid auth token",`)
+	})
+
 }

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/EzequielBPullolil/auth_service/users"
@@ -48,23 +49,32 @@ func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 }
 
 func (uc AuthController) ValidateUserToken(res http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" || r.Method == "post" {
+	if r.Method == http.MethodPost {
 		c, err := r.Cookie("auth_token")
+
 		if err != nil {
 			uc.ResponseWithStatus(`{
-				"status": "Missing auth token",
-			}`, 400, res)
-		} else {
-			if users.ValidateToken(c.Value) {
+				"status": "Invalid auth token",
+			}`, http.StatusBadRequest, res)
+			return
+		}
+		if id, ok := users.ValidateToken(c.Value); ok {
+			log.Println(c, err, id, ok)
+			if id == "" {
 				uc.ResponseWithStatus(`{
-					"status": "Valid auth token",
-				}`, 200, res)
-
+					"status": "Invalid auth token",
+				}`, http.StatusBadRequest, res)
 			} else {
 				uc.ResponseWithStatus(`{
-					"status": "Inalid auth token",
-				}`, 200, res)
+					"status": "Valid auth token",
+				}`, http.StatusOK, res)
 			}
+		} else {
+			uc.ResponseWithStatus(`{
+				"status": "Invalid auth token",
+			}`, http.StatusBadRequest, res)
 		}
+		// Si la cookie no está presente o el token no es válido
+
 	}
 }

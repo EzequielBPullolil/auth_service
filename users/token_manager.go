@@ -23,11 +23,23 @@ func GetTokenId(tokenString string) string {
 	return ""
 }
 
-func ValidateToken(tokenString string) bool {
-	t, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-
+func ValidateToken(tokenString string) (string, bool) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secret"), nil
 	})
-	_, ok := t.Claims.(jwt.MapClaims)
-	return ok && t.Valid
+	if err != nil || !token.Valid {
+		return "", false
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", false
+	}
+
+	id, ok := claims["id"].(string)
+	if !ok {
+		return "", false
+	}
+
+	return id, true
 }
