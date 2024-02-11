@@ -40,17 +40,22 @@ func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
 	}
 }
 func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" || r.Method == "post" {
+	if r.Method == http.MethodPost {
 		u := uc.GetUserData(r)
-		user, _ := uc.repo.Read(u.GetId())
-		response := fmt.Sprintf(`{
-			"status": "Successful user login",
-			"data":{
-				"token": "%s",
-				"user": %s
-			}
-		}`, users.CreateToken(user.GetId()), user.ToJson())
-		uc.ResponseWithStatus(response, 201, res)
+		if user, err := uc.repo.GetBy("email", u.GetEmail()); err == nil {
+			response := fmt.Sprintf(`{
+				"status": "Successful user login",
+				"data":{
+					"token": "%s",
+					"user": %s
+				}
+			}`, users.CreateToken(user.GetId()), user.ToJson())
+			uc.ResponseWithStatus(response, http.StatusOK, res)
+		} else {
+			uc.ResponseWithStatus(fmt.Sprintf(`{
+				"error": "%s"
+			}`, err.Error()), http.StatusCreated, res)
+		}
 	}
 }
 
