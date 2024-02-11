@@ -20,17 +20,23 @@ func NewAuthController(db_repository users.Repository) AuthController {
 }
 
 func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" || r.Method == "post" {
+	if r.Method == http.MethodPost {
 		u := uc.GetUserData(r)
-		entity, _ := uc.repo.Create(u)
-
-		response := fmt.Sprintf(`{
-			"status": "Successful user registration",
-			"data":{
-				%s
-			}
-		}`, entity.ToJson())
-		uc.ResponseWithStatus(response, 201, res)
+		if entity, err := uc.repo.Create(u); err == nil {
+			response := fmt.Sprintf(`{
+				"status": "Successful user registration",
+				"data":{
+					%s
+				}
+			}`, entity.ToJson())
+			uc.ResponseWithStatus(response, http.StatusCreated, res)
+			log.Println(u, entity, err)
+		} else {
+			uc.ResponseWithStatus(fmt.Sprintf(`{
+				"error": "%s"
+			}`, err.Error()), http.StatusCreated, res)
+			log.Println(u, entity, err)
+		}
 	}
 }
 func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
