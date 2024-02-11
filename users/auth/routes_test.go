@@ -43,7 +43,7 @@ func TestAuthSingup(t *testing.T) {
 		"email": "anEmail@gogo.com",
 		"password": "original_password"
 	}`))
-	req, err := http.NewRequest("POST", url+"/singup", body)
+	req, err := http.NewRequest("POST", url+"/signup", body)
 	assert.NoError(t, err)
 
 	rr := httptest.NewRecorder()
