@@ -6,14 +6,13 @@ type User struct {
 	Id, Name, Email, Password string
 }
 
-func (u User) GetId() string {
-	return u.Id
-}
-
 func (u User) ToJson() string {
 	return fmt.Sprintf(`{
 		"id": "%s",
 		"name": "%s",
 		"email": "%s",
-	}`, u.Id, u.Name, u.Email)
+		}`, u.Id, u.Name, u.Email)
 }
+
+func (u User) GetId() string    { return u.Id }
+func (u User) GetEmail() string { return u.Email }
