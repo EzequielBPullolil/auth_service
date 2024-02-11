@@ -18,11 +18,23 @@ func NewUserController(db_repository Repository) UserController {
 }
 
 func (uc UserController) GetAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
-	c, _ := req.Cookie("auth_token")
-	id := GetTokenId(c.Value)
+	if c, err := req.Cookie("auth_token"); err == nil {
+		id := GetTokenId(c.Value)
 
-	user, _ := uc.repo.Read(id)
-	uc.ResponseWithStatus(user.ToJson(), 200, res)
+		if user, err := uc.repo.Read(id); err == nil {
+
+			uc.ResponseWithStatus(user.ToJson(), http.StatusOK, res)
+		} else {
+			uc.ResponseWithStatus(fmt.Sprintf(`{
+				"error": "%s"
+			}`, err.Error()), http.StatusBadRequest, res)
+		}
+	} else {
+		uc.ResponseWithStatus(fmt.Sprintf(`{
+			"status": "Error finding cookie",
+			"error": "%s"
+		}`, err.Error()), http.StatusBadRequest, res)
+	}
 }
 func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
 	c, _ := req.Cookie("auth_token")
