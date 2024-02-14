@@ -3,6 +3,7 @@ package auth
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -61,47 +62,33 @@ func TestAuthSingup(t *testing.T) {
 			}
 		})
 		t.Run("Try signup user with invalid fields", func(t *testing.T) {
-			type test struct{ Name, Body string }
-			t.Run("Should response with status code 400 if name is invalid", func(t *testing.T) {
-				var fields_cases = []test{
+			var invalid_fields = [][]struct{ Name, Body string }{
+				{
 					{"it's not long enough", createBody("abcd", valid_password, valid_email)},
 					{"it's not empty", createBody("", valid_password, valid_email)},
 					{"Not contains numbers", createBody("abcdf#", valid_password, valid_email)},
 					{"Not contains symbols", createBody("abcdf5", valid_password, valid_email)},
-				}
-				for _, field := range fields_cases {
+				},
+				{
+					{"it's not long enough", createBody(valid_name, "Abcde#2", valid_email)},
+					{"it's empty", createBody(valid_name, "", valid_email)},
+					{"Not contains numbers", createBody(valid_name, "Abcdf#A", valid_email)},
+					{"Not contains symbols", createBody(valid_name, "Abcde22", valid_email)},
+				},
+			}
+			for i := range invalid_fields {
+				for _, field := range invalid_fields[i] {
 					t.Run(field.Name, func(t *testing.T) {
 						rr := httptest.NewRecorder()
 						body := bytes.NewReader([]byte(field.Body))
 						req, err := http.NewRequest("POST", endpoint, body)
 						assert.NoError(t, err)
 						server.ServeHTTP(rr, req)
-
+						log.Println(rr.Body.String())
 						assert.Equal(t, http.StatusBadRequest, rr.Code)
 					})
 				}
-			})
-			t.Run("Should response with status code 400 if password is invalid", func(t *testing.T) {
-				t.Run("Should response with status code 400 if name is invalid", func(t *testing.T) {
-					var fields_cases = []test{
-						{"it's not long enough", createBody(valid_name, "Abcde#2", valid_email)},
-						{"it's empty", createBody(valid_name, "", valid_email)},
-						{"Not contains numbers", createBody(valid_name, "Abcdf#A", valid_email)},
-						{"Not contains symbols", createBody(valid_name, "Abcde22", valid_email)},
-					}
-					for _, field := range fields_cases {
-						t.Run(field.Name, func(t *testing.T) {
-							rr := httptest.NewRecorder()
-							body := bytes.NewReader([]byte(field.Body))
-							req, err := http.NewRequest("POST", url+"/signup", body)
-							assert.NoError(t, err)
-							server.ServeHTTP(rr, req)
-
-							assert.Equal(t, http.StatusBadRequest, rr.Code)
-						})
-					}
-				})
-			})
+			}
 		})
 	})
 
