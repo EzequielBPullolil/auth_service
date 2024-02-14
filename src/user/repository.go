@@ -34,6 +34,7 @@ func (r UserRepository) CreateTables() error {
 func (r UserRepository) Create(userFields User) (User, error) {
 	id, _ := uuid.NewUUID()
 	userFields.Id = id.String()
+	userFields.HashPassword()
 	query := fmt.Sprintf("INSERT INTO users (id, name, password, email) VALUES('%s','%s','%s','%s');", userFields.Id, userFields.Name, userFields.Password, userFields.Email)
 	log.Println(query)
 	_, err := r.connectionPool.Exec(context.Background(), query)
