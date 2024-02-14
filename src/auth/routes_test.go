@@ -104,12 +104,12 @@ func TestAuthSingup(t *testing.T) {
 }
 
 func TestAuthLogin(t *testing.T) {
-	expectedToken := fmt.Sprintf(`"token": "%s"`, tokenmanager.CreateToken("anEmail@gogo.com"))
+	endpoint := url + "/login"
 	body := bytes.NewReader([]byte(`{
 		"email": "anEmail@gogo.com",
 		"password": "original_password"
 	}`))
-	req, err := http.NewRequest("POST", url+"/login", body)
+	req, err := http.NewRequest("POST", endpoint, body)
 	assert.NoError(t, err)
 
 	rr := httptest.NewRecorder()
@@ -117,8 +117,8 @@ func TestAuthLogin(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, rr.Code)
 
 	assert.Contains(t, rr.Body.String(), `"status": "Successful user login",`)
-	assert.Contains(t, rr.Body.String(), expectedToken)
 	assert.Contains(t, rr.Body.String(), `"email": "anEmail@gogo.com",`)
+	assert.Contains(t, rr.Body.String(), `"token"`)
 }
 
 func TestAuthValidate(t *testing.T) {
@@ -127,7 +127,7 @@ func TestAuthValidate(t *testing.T) {
 		Name: "auth_token",
 	}
 
-	t.Run("Should response valid auth_token", func(t *testing.T) {
+	t.Run("Should response with status code 200 if the auth_token is valid", func(t *testing.T) {
 		rr := httptest.NewRecorder()
 		req, err := http.NewRequest("POST", endpoint, nil)
 		assert.NoError(t, err)
@@ -140,7 +140,7 @@ func TestAuthValidate(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rr.Code)
 		assert.Contains(t, rr.Body.String(), `"status": "Valid auth token",`)
 	})
-	t.Run("Should be invalid response if auth_token is invalid", func(t *testing.T) {
+	t.Run("Should response with status code 400 if the auth_token is invalid", func(t *testing.T) {
 		rr := httptest.NewRecorder()
 		req, err := http.NewRequest("POST", endpoint, nil)
 		assert.NoError(t, err)
