@@ -57,7 +57,7 @@ func TestAuthSingup(t *testing.T) {
 }
 
 func TestAuthLogin(t *testing.T) {
-	expectedToken := fmt.Sprintf(`"token": "%s"`, users.CreateToken("fake_id"))
+	expectedToken := fmt.Sprintf(`"token": "%s"`, users.CreateToken("anEmail@gogo.com"))
 	body := bytes.NewReader([]byte(`{
 		"email": "anEmail@gogo.com",
 		"password": "original_password"

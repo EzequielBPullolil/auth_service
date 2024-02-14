@@ -15,7 +15,6 @@ type Repository interface {
 	Read(string) (*User, error)
 	Delete(string) error
 	Update(string, User) (*User, error)
-	GetBy(string, string) (*User, error)
 	CreateTables() error
 }
 
@@ -49,9 +48,9 @@ func (r UserRepository) Create(userFields User) (User, error) {
 	return userFields, err
 }
 
-func (r UserRepository) Read(user_id string) (*User, error) {
+func (r UserRepository) Read(email string) (*User, error) {
 	var user User
-	query := fmt.Sprintf("SELECT * FROM users WHERE id='%s';", user_id)
+	query := fmt.Sprintf("SELECT * FROM users WHERE email='%s';", email)
 
 	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
 	if user.Name == "" {
@@ -84,15 +83,4 @@ func (r UserRepository) Delete(user_id string) error {
 		return errors.New(fmt.Sprintf("There is no user with the ID: '%s'", user_id))
 	}
 	return nil
-}
-
-func (r UserRepository) GetBy(field, value string) (*User, error) {
-	var user User
-	query := fmt.Sprintf("SELECT * FROM users WHERE %s='%s';", field, value)
-
-	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
-	if user.Name == "" {
-		return nil, errors.New("unregistered user")
-	}
-	return &user, nil
 }
