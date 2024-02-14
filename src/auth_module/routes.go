@@ -1,12 +1,12 @@
-package auth
+package authmodule
 
 import (
 	"net/http"
 
-	"github.com/EzequielBPullolil/auth_service/users"
+	"github.com/EzequielBPullolil/auth_service/src/types"
 )
 
-func HandleAuthRoutes(s *http.ServeMux, db_inyection users.Repository) {
+func HandleAuthRoutes(s *http.ServeMux, db_inyection types.Repository) {
 	auth_controller := NewAuthController(db_inyection)
 	s.Handle("/auth/signup", http.HandlerFunc(auth_controller.SignupUser))
 	s.Handle("/auth/login", http.HandlerFunc(auth_controller.LoginUser))

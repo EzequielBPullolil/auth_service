@@ -1,19 +1,20 @@
-package auth
+package authmodule
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/EzequielBPullolil/auth_service/users"
+	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
+	"github.com/EzequielBPullolil/auth_service/src/types"
 )
 
 type AuthController struct {
-	repo users.Repository
-	users.Controller
+	repo types.Repository
+	types.Controller
 }
 
-func NewAuthController(db_repository users.Repository) AuthController {
+func NewAuthController(db_repository types.Repository) AuthController {
 	return AuthController{
 		repo: db_repository,
 	}
@@ -49,7 +50,7 @@ func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 					"token": "%s",
 					"user": %s
 				}
-			}`, users.CreateToken(user.GetEmail()), user.ToJson())
+			}`, tokenmanager.CreateToken(user.GetEmail()), user.ToJson())
 			uc.ResponseWithStatus(response, http.StatusCreated, res)
 		} else {
 			uc.ResponseWithStatus(fmt.Sprintf(`{
@@ -70,7 +71,7 @@ func (uc AuthController) ValidateUserToken(res http.ResponseWriter, r *http.Requ
 			}`, http.StatusBadRequest, res)
 			return
 		}
-		if id, ok := users.ValidateToken(c.Value); ok {
+		if id, ok := tokenmanager.ValidateToken(c.Value); ok {
 			log.Println(c, err, id, ok)
 			if id == "" {
 				uc.ResponseWithStatus(`{

@@ -1,4 +1,4 @@
-package users
+package usermodule
 
 import (
 	"bytes"
@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
+	"github.com/EzequielBPullolil/auth_service/src/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,18 +16,18 @@ var url = "/users"
 
 // Simulated repo
 type MockedRepo struct {
-	Repository
+	types.Repository
 }
 
-func (c MockedRepo) Update(t string, e User) (*User, error) {
+func (c MockedRepo) Update(t string, e types.User) (*types.User, error) {
 	return &e, nil
 
 }
 func (c MockedRepo) Delete(id string) error {
 	return nil
 }
-func (c MockedRepo) Read(t string) (*User, error) {
-	return &User{
+func (c MockedRepo) Read(t string) (*types.User, error) {
+	return &types.User{
 		Id:    "fake_id",
 		Name:  "palacios",
 		Email: "palacios@gmail.com",
@@ -39,7 +41,7 @@ func TestGetAuthenticatedUser(t *testing.T) {
 	req, err := http.NewRequest("GET", url, nil)
 	req.AddCookie(&http.Cookie{
 		Name:  "auth_token",
-		Value: CreateToken("fake_id"),
+		Value: tokenmanager.CreateToken("fake_id"),
 	})
 	assert.NoError(t, err)
 
@@ -61,7 +63,7 @@ func TestUpdateUser(t *testing.T) {
 	req, err := http.NewRequest("PUT", url, body)
 	req.AddCookie(&http.Cookie{
 		Name:  "auth_token",
-		Value: CreateToken("fake_id"),
+		Value: tokenmanager.CreateToken("fake_id"),
 	})
 	assert.NoError(t, err)
 
@@ -79,7 +81,7 @@ func TestDeleteUser(t *testing.T) {
 	req, err := http.NewRequest("DELETE", url, nil)
 	req.AddCookie(&http.Cookie{
 		Name:  "auth_token",
-		Value: CreateToken("fake_id"),
+		Value: tokenmanager.CreateToken("fake_id"),
 	})
 	assert.NoError(t, err)
 	rr := httptest.NewRecorder()

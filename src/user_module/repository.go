@@ -1,4 +1,4 @@
-package users
+package usermodule
 
 import (
 	"context"
@@ -9,14 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-type Repository interface {
-	Create(User) (User, error)
-	Read(string) (*User, error)
-	Delete(string) error
-	Update(string, User) (*User, error)
-	CreateTables() error
-}
 
 type UserRepository struct {
 	connectionPool *pgxpool.Pool

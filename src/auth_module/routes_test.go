@@ -1,4 +1,4 @@
-package auth
+package authmodule
 
 import (
 	"bytes"
@@ -7,7 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/EzequielBPullolil/auth_service/users"
+	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
+	"github.com/EzequielBPullolil/auth_service/src/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,18 +17,18 @@ var url = "/auth"
 
 // Simulated repo
 type MockedRepo struct {
-	users.Repository
+	types.Repository
 }
 
-func (c MockedRepo) Create(t users.User) (users.User, error) {
-	return users.User{
+func (c MockedRepo) Create(t types.User) (types.User, error) {
+	return types.User{
 		Id:    "fake_id",
 		Email: "anEmail@gogo.com",
 		Name:  "ezequiel",
 	}, nil
 }
-func (c MockedRepo) Read(t string) (*users.User, error) {
-	return &users.User{
+func (c MockedRepo) Read(t string) (*types.User, error) {
+	return &types.User{
 		Id:    "fake_id",
 		Name:  "ezequiel",
 		Email: "anEmail@gogo.com",
@@ -57,7 +58,7 @@ func TestAuthSingup(t *testing.T) {
 }
 
 func TestAuthLogin(t *testing.T) {
-	expectedToken := fmt.Sprintf(`"token": "%s"`, users.CreateToken("anEmail@gogo.com"))
+	expectedToken := fmt.Sprintf(`"token": "%s"`, tokenmanager.CreateToken("anEmail@gogo.com"))
 	body := bytes.NewReader([]byte(`{
 		"email": "anEmail@gogo.com",
 		"password": "original_password"
@@ -85,7 +86,7 @@ func TestAuthValidate(t *testing.T) {
 		req, err := http.NewRequest("POST", endpoint, nil)
 		assert.NoError(t, err)
 
-		cookie.Value = users.CreateToken("fake_id")
+		cookie.Value = tokenmanager.CreateToken("fake_id")
 		req.AddCookie(cookie)
 		assert.NotEmpty(t, req.Cookies())
 

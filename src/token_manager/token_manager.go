@@ -1,4 +1,4 @@
-package users
+package tokenmanager
 
 import (
 	"github.com/golang-jwt/jwt/v5"

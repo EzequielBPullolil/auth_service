@@ -1,17 +1,20 @@
-package users
+package usermodule
 
 import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
+	"github.com/EzequielBPullolil/auth_service/src/types"
 )
 
 type UserController struct {
-	repo Repository
-	Controller
+	repo types.Repository
+	types.Controller
 }
 
-func NewUserController(db_repository Repository) UserController {
+func NewUserController(db_repository types.Repository) UserController {
 	return UserController{
 		repo: db_repository,
 	}
@@ -19,7 +22,7 @@ func NewUserController(db_repository Repository) UserController {
 
 func (uc UserController) GetAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
 	if c, err := req.Cookie("auth_token"); err == nil {
-		id := GetTokenId(c.Value)
+		id := tokenmanager.GetTokenId(c.Value)
 
 		if user, err := uc.repo.Read(id); err == nil {
 
@@ -38,7 +41,7 @@ func (uc UserController) GetAuthenticatedUser(res http.ResponseWriter, req *http
 }
 func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
 	c, _ := req.Cookie("auth_token")
-	id := GetTokenId(c.Value)
+	id := tokenmanager.GetTokenId(c.Value)
 	u := uc.GetUserData(req)
 	updated_user, _ := uc.repo.Update(id, u)
 
@@ -51,7 +54,7 @@ func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *h
 }
 func (uc UserController) DeleteAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
 	c, _ := req.Cookie("auth_token")
-	id := GetTokenId(c.Value)
+	id := tokenmanager.GetTokenId(c.Value)
 	uc.repo.Delete(id)
 
 	response := fmt.Sprintf(`{
