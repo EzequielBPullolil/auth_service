@@ -50,11 +50,11 @@ func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 					"user": %s
 				}
 			}`, users.CreateToken(user.GetEmail()), user.ToJson())
-			uc.ResponseWithStatus(response, http.StatusOK, res)
+			uc.ResponseWithStatus(response, http.StatusCreated, res)
 		} else {
 			uc.ResponseWithStatus(fmt.Sprintf(`{
 				"error": "%s"
-			}`, err.Error()), http.StatusCreated, res)
+			}`, err.Error()), http.StatusBadRequest, res)
 		}
 	}
 }
