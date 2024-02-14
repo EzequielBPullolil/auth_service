@@ -1,4 +1,4 @@
-package usermodule
+package user
 
 import "github.com/EzequielBPullolil/auth_service/src/types"
 
