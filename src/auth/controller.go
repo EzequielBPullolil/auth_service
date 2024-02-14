@@ -21,23 +21,28 @@ func NewAuthController(db_repository types.Repository) AuthController {
 }
 
 func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		u := uc.GetUserData(r)
-		if entity, err := uc.repo.Create(u); err == nil {
-			response := fmt.Sprintf(`{
-				"status": "Successful user registration",
-				"data":{
-					%s
-				}
-			}`, entity.ToJson())
-			uc.ResponseWithStatus(response, http.StatusCreated, res)
-			log.Println(u, entity, err)
-		} else {
-			uc.ResponseWithStatus(fmt.Sprintf(`{
-				"error": "%s"
-			}`, err.Error()), http.StatusCreated, res)
-			log.Println(u, entity, err)
-		}
+	if r.Method != http.MethodPost {
+		return
+	}
+	u := uc.GetUserData(r)
+	if u.Name == "" || u.Email == "" || u.Password == "" {
+		uc.ResponseWithStatus("", http.StatusBadRequest, res)
+		return
+	}
+	if entity, err := uc.repo.Create(u); err == nil {
+		response := fmt.Sprintf(`{
+			"status": "Successful user registration",
+			"data":{
+				%s
+			}
+		}`, entity.ToJson())
+		uc.ResponseWithStatus(response, http.StatusCreated, res)
+		log.Println(u, entity, err)
+	} else {
+		uc.ResponseWithStatus(fmt.Sprintf(`{
+			"error": "%s"
+		}`, err.Error()), http.StatusCreated, res)
+		log.Println(u, entity, err)
 	}
 }
 func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
