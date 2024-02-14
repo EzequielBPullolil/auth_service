@@ -12,13 +12,13 @@ import (
 )
 
 func main() {
-
+	HOST, PORT := os.Getenv("HOST"), os.Getenv("PORT")
 	server := http.NewServeMux()
 	connectionPool, _ := pgxpool.New(context.Background(), os.Getenv("DB_URI"))
 	user_repo := users.NewUserRepository(connectionPool)
 	user_repo.CreateTables()
 	users.HandleUserRoute(server, user_repo)
 	auth.HandleAuthRoutes(server, user_repo)
-	log.Println("Server start at port 8030")
-	log.Fatal(http.ListenAndServe(":8030", server))
+	log.Printf(`Server listen on "%s:%s`, HOST, PORT)
+	log.Fatal(http.ListenAndServe(HOST+":"+PORT, server))
 }
