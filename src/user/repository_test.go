@@ -15,8 +15,7 @@ var pool *pgxpool.Pool
 
 func init() {
 	var err error
-	pool, err = pgxpool.New(context.Background(), "postgresql://ezequiel-k:ezequiel_dev_pass@localhost:5432/auth_systemtest")
-	if err != nil {
+	if pool, err = pgxpool.New(context.Background(), "postgresql://ezequiel-k:ezequiel_dev_pass@localhost:5432/auth_systemtest"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -26,7 +25,9 @@ func init() {
 	pool.QueryRow(context.Background(), "delete from users;")
 	repo = NewUserRepository(pool)
 
-	repo.CreateTables()
+	if err = repo.CreateTables(); err != nil {
+		log.Fatal(err)
+	}
 }
 func TestCreate(t *testing.T) {
 	var user = User{
