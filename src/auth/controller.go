@@ -25,10 +25,16 @@ func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u := uc.GetUserData(r)
-	if u.Name == "" || u.Email == "" || u.Password == "" {
-		uc.ResponseWithStatus("", http.StatusBadRequest, res)
+
+	if err, ok := u.ValidateFields(); !ok {
+		response := fmt.Sprintf(`{
+			"status": "error signup user",
+			"error": "%s"
+		}`, err.Error())
+		uc.ResponseWithStatus(response, http.StatusBadRequest, res)
 		return
 	}
+
 	if entity, err := uc.repo.Create(u); err == nil {
 		response := fmt.Sprintf(`{
 			"status": "Successful user registration",
