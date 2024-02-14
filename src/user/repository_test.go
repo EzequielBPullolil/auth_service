@@ -38,7 +38,7 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, user.GetId(), "")
 	persistedUser, err := repo.Create(user)
 	assert.NoError(t, err)
-	query := fmt.Sprintf("SELECT id FROM users WHERE name='%s'", persistedUser.Name)
+	query := fmt.Sprintf("SELECT id FROM users WHERE email='%s'", persistedUser.Email)
 	t.Run("Should be have id", func(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEqual(t, persistedUser.GetId(), "")
@@ -49,12 +49,19 @@ func TestCreate(t *testing.T) {
 		assert.NoError(t, pool.QueryRow(context.Background(), query).Scan(&response))
 		assert.Equal(t, persistedUser.GetId(), response)
 	})
-	t.Run("Shoul not create an user with the same email", func(t *testing.T) {
+	t.Run("Should not create an user with the same email", func(t *testing.T) {
 		_, err := repo.Create(user)
 		assert.Error(t, err)
 		var count int
 		repo.connectionPool.QueryRow(context.Background(), "SELECT COUNT(email) FROM users WHERE email='"+persistedUser.Email+"'").Scan(&count)
 		assert.Equal(t, count, 1)
+	})
+	t.Run("Should persist a user with encrypted password", func(t *testing.T) {
+		var newPassword string
+		repo.connectionPool.QueryRow(context.Background(), "SELECT password FROM users WHERE email='"+persistedUser.Email+"'").Scan(&newPassword)
+
+		assert.NotEmpty(t, newPassword)
+		assert.NotEqual(t, user.Password, newPassword)
 	})
 }
 
