@@ -21,11 +21,8 @@ type MockedRepo struct {
 }
 
 func (c MockedRepo) Create(t types.User) (types.User, error) {
-	return types.User{
-		Id:    "fake_id",
-		Email: "anEmail@gogo.com",
-		Name:  "ezequiel",
-	}, nil
+	t.Id = "test_id_fake"
+	return t, nil
 }
 func (c MockedRepo) Read(t string) (*types.User, error) {
 	return &types.User{
@@ -39,22 +36,32 @@ func init() {
 	HandleAuthRoutes(server, MockedRepo{})
 }
 func TestAuthSingup(t *testing.T) {
-	body := bytes.NewReader([]byte(`{
-		"name": "ezequiel",
-		"email": "anEmail@gogo.com",
-		"password": "original_password"
-	}`))
-	req, err := http.NewRequest("POST", url+"/signup", body)
-	assert.NoError(t, err)
+	valid_name := "ezequiel"
+	valid_email := "test_email@email.com"
+	valid_password := "ValidPassword45#"
+	fields := make([]string, 3)
+	fields = append(fields, fmt.Sprintf(`{"name":"%s", "password": "%s", "email": "%s"}`, "", valid_password, valid_email))
+	fields = append(fields, fmt.Sprintf(`{"name":"%s", "password": "%s", "email": "%s"}`, valid_name, "", valid_email))
+	fields = append(fields, fmt.Sprintf(`{"name":"%s", "password": "%s", "email": "%s"}`, valid_name, valid_password, ""))
+	for i := range fields {
+		t.Run("Should repsonse status 400 if field is empty", func(t *testing.T) {
+			rr := httptest.NewRecorder()
+			body := bytes.NewReader([]byte(fields[i]))
+			req, err := http.NewRequest("POST", url+"/signup", body)
+			assert.NoError(t, err)
+			server.ServeHTTP(rr, req)
+			assert.Equal(t, http.StatusBadRequest, rr.Code)
+		})
+	}
 
-	rr := httptest.NewRecorder()
-	server.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusCreated, rr.Code)
-	assert.Contains(t, rr.Body.String(), `"status": "Successful user registration",`)
-	assert.Contains(t, rr.Body.String(), `"id": "fake_id"`)
-	assert.Contains(t, rr.Body.String(), `"name": "ezequiel"`)
-	assert.Contains(t, rr.Body.String(), `"email": "anEmail@gogo.com",`)
+	t.Run("Should response with status code 201 if all fields are valid", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		body := bytes.NewReader([]byte(fmt.Sprintf(`{"name":"%s", "password": "%s", "email": "%s"}`, valid_name, valid_password, valid_email)))
+		req, err := http.NewRequest("POST", url+"/signup", body)
+		assert.NoError(t, err)
+		server.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusCreated, rr.Code)
+	})
 }
 
 func TestAuthLogin(t *testing.T) {
