@@ -35,22 +35,25 @@ func init() {
 	server = http.NewServeMux()
 	HandleAuthRoutes(server, MockedRepo{})
 }
+func createBody(name, password, email string) string {
+	return fmt.Sprintf(`{"name":"%s", "password":"%s", "email":"%s"}`, name, password, email)
+}
 func TestAuthSingup(t *testing.T) {
-
+	endpoint := url + "/signup"
 	valid_name := "ezequiel"
 	valid_email := "test_email@email.com"
 	valid_password := "ValidPassword45#"
 	t.Run("Should be bad repsonse if", func(t *testing.T) {
 		t.Run("Any field is empty", func(t *testing.T) {
 			fields := make([]string, 3)
-			fields = append(fields, fmt.Sprintf(`{"name":"%s", "password": "%s", "email": "%s"}`, "", valid_password, valid_email))
-			fields = append(fields, fmt.Sprintf(`{"name":"%s", "password": "%s", "email": "%s"}`, valid_name, "", valid_email))
-			fields = append(fields, fmt.Sprintf(`{"name":"%s", "password": "%s", "email": "%s"}`, valid_name, valid_password, ""))
+			fields = append(fields, createBody("", valid_password, valid_email))
+			fields = append(fields, createBody(valid_name, "", valid_email))
+			fields = append(fields, createBody(valid_name, valid_password, ""))
 			for i := range fields {
 				t.Run("status code 400", func(t *testing.T) {
 					rr := httptest.NewRecorder()
 					body := bytes.NewReader([]byte(fields[i]))
-					req, err := http.NewRequest("POST", url+"/signup", body)
+					req, err := http.NewRequest("POST", endpoint, body)
 					assert.NoError(t, err)
 					server.ServeHTTP(rr, req)
 					assert.Equal(t, http.StatusBadRequest, rr.Code)
@@ -58,21 +61,19 @@ func TestAuthSingup(t *testing.T) {
 			}
 		})
 		t.Run("Try signup user with invalid fields", func(t *testing.T) {
-
+			type test struct{ Name, Body string }
 			t.Run("Should response with status code 400 if name is invalid", func(t *testing.T) {
-				var test = []struct {
-					Name, Body string
-				}{
-					{"it's not long enough", fmt.Sprintf(`{"name":"abcd", "password": "%s", "email": "%s"}`, valid_password, valid_email)},
-					{"it's not empty", fmt.Sprintf(`{"name":"", "password": "%s", "email": "%s"}`, valid_password, valid_email)},
-					{"Not contains numbers", fmt.Sprintf(`{"name":"abcdf5", "password": "%s", "email": "%s"}`, valid_password, valid_email)},
-					{"Not contains symbols", fmt.Sprintf(`{"name":"abcdf#", "password": "%s", "email": "%s"}`, valid_password, valid_email)},
+				var fields_cases = []test{
+					{"it's not long enough", createBody("abcd", valid_password, valid_email)},
+					{"it's not empty", createBody("", valid_password, valid_email)},
+					{"Not contains numbers", createBody("abcdf#", valid_password, valid_email)},
+					{"Not contains symbols", createBody("abcdf5", valid_password, valid_email)},
 				}
-				for _, field := range test {
+				for _, field := range fields_cases {
 					t.Run(field.Name, func(t *testing.T) {
 						rr := httptest.NewRecorder()
 						body := bytes.NewReader([]byte(field.Body))
-						req, err := http.NewRequest("POST", url+"/signup", body)
+						req, err := http.NewRequest("POST", endpoint, body)
 						assert.NoError(t, err)
 						server.ServeHTTP(rr, req)
 
@@ -82,15 +83,13 @@ func TestAuthSingup(t *testing.T) {
 			})
 			t.Run("Should response with status code 400 if password is invalid", func(t *testing.T) {
 				t.Run("Should response with status code 400 if name is invalid", func(t *testing.T) {
-					var test = []struct {
-						Name, Body string
-					}{
-						{"it's not long enough", fmt.Sprintf(`{"name":"%s", "password": "Abcd#45", "email": "%s"}`, valid_name, valid_email)},
-						{"it's empty", fmt.Sprintf(`{"name":"%s", "password": "", "email": "%s"}`, valid_name, valid_email)},
-						{"Not contains numbers", fmt.Sprintf(`{"name":"%s", "password": "Abcde#A", "email": "%s"}`, valid_name, valid_email)},
-						{"Not contains symbols", fmt.Sprintf(`{"name":"%s", "password": "Abcde3A", "email": "%s"}`, valid_name, valid_email)},
+					var fields_cases = []test{
+						{"it's not long enough", createBody(valid_name, "Abcde#2", valid_email)},
+						{"it's empty", createBody(valid_name, "", valid_email)},
+						{"Not contains numbers", createBody(valid_name, "Abcdf#A", valid_email)},
+						{"Not contains symbols", createBody(valid_name, "Abcde22", valid_email)},
 					}
-					for _, field := range test {
+					for _, field := range fields_cases {
 						t.Run(field.Name, func(t *testing.T) {
 							rr := httptest.NewRecorder()
 							body := bytes.NewReader([]byte(field.Body))
@@ -108,8 +107,8 @@ func TestAuthSingup(t *testing.T) {
 
 	t.Run("Should response with status code 201 if all fields are valid", func(t *testing.T) {
 		rr := httptest.NewRecorder()
-		body := bytes.NewReader([]byte(fmt.Sprintf(`{"name":"%s", "password": "%s", "email": "%s"}`, valid_name, valid_password, valid_email)))
-		req, err := http.NewRequest("POST", url+"/signup", body)
+		body := bytes.NewReader([]byte(createBody(valid_name, valid_password, valid_email)))
+		req, err := http.NewRequest("POST", endpoint, body)
 		assert.NoError(t, err)
 		server.ServeHTTP(rr, req)
 
