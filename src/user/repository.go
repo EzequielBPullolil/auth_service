@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -63,6 +64,9 @@ func (r UserRepository) Update(user_id string, new_fields User) (*User, error) {
 		"UPDATE users SET name=$1, password=$2, email=$3 WHERE id=$4 RETURNING id, name, password, email;",
 		new_fields.Name, new_fields.Password, new_fields.Email, user_id).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
 	if err != nil {
+		if strings.Contains(err.Error(), "SQLSTATE 23505") {
+			return nil, errors.New("Cannot update user: Email already in use")
+		}
 		return nil, err
 	}
 

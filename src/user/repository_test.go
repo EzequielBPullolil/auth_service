@@ -32,22 +32,19 @@ func init() {
 func TestCreate(t *testing.T) {
 	var user = User{
 		Name:     "test_user",
-		Password: "Test_password",
-		Email:    "Test_email",
+		Password: "Test_password4",
+		Email:    "email@create_test.com",
 	}
 	assert.Equal(t, user.GetId(), "")
 	persistedUser, err := repo.Create(user)
 	assert.NoError(t, err)
-	query := fmt.Sprintf("SELECT id FROM users WHERE email='%s'", persistedUser.Email)
 	t.Run("Should be have id", func(t *testing.T) {
-		assert.NoError(t, err)
 		assert.NotEqual(t, persistedUser.GetId(), "")
 	})
 	t.Run("Should persist an user", func(t *testing.T) {
-		var response string
-		assert.NoError(t, err)
-		assert.NoError(t, pool.QueryRow(context.Background(), query).Scan(&response))
-		assert.Equal(t, persistedUser.GetId(), response)
+		var response_id string
+		assert.NoError(t, pool.QueryRow(context.Background(), "SELECT id FROM users WHERE email='"+persistedUser.Email+"'").Scan(&response_id))
+		assert.Equal(t, persistedUser.GetId(), response_id)
 	})
 	t.Run("Should not create an user with the same email", func(t *testing.T) {
 		_, err := repo.Create(user)
@@ -75,9 +72,9 @@ func TestCreate(t *testing.T) {
 func TestRead(t *testing.T) {
 	var userSuject = User{
 		Id:       "some_id",
-		Name:     "an natural name",
-		Password: "Some password",
-		Email:    "An email",
+		Name:     "Analia",
+		Password: "Password#34",
+		Email:    "email@read_test.com",
 	}
 	query := fmt.Sprintf("INSERT INTO users (id, name, password, email) VALUES('%s','%s','%s','%s');",
 		userSuject.Id,
@@ -104,16 +101,17 @@ func TestRead(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	var userSuject = User{
 		Id:       "a-user-to-update",
-		Name:     "name to update",
-		Password: "password to update",
-		Email:    "aaaemail",
+		Name:     "Granata",
+		Password: "PasSWord#32",
+		Email:    "email@update_test.com",
 	}
 	query := fmt.Sprintf("INSERT INTO users (id, name, password, email) VALUES('%s','%s','%s','%s');",
 		userSuject.Id,
 		userSuject.Name,
 		userSuject.Password,
 		userSuject.Email)
-	repo.connectionPool.Exec(context.Background(), query)
+	_, err := repo.connectionPool.Exec(context.Background(), query)
+	assert.NoError(t, err)
 	var newFields = User{
 		Name:     "Bakan",
 		Password: "Bakan",
@@ -140,14 +138,25 @@ func TestUpdate(t *testing.T) {
 		assert.Nil(t, u)
 		assert.ErrorContains(t, err, "Can't update user ID")
 	})
+	t.Run("Should return error if try to update email with already registered email", func(t *testing.T) {
+		_, err := repo.connectionPool.Exec(context.Background(), "INSERT INTO users (id, name, password, email) VALUES('##sds##', '','','test@registeredEmail.com')")
+		assert.NoError(t, err)
+		u, err := repo.Update(userSuject.Id, User{
+			Email: "test@registeredEmail.com",
+		})
+
+		assert.ErrorContains(t, err, "Cannot update user: Email already in use")
+
+		assert.Nil(t, u)
+	})
 }
 
 func TestDelete(t *testing.T) {
 	var userSuject = User{
 		Id:       "a-user-to-delete",
-		Name:     "name to update",
-		Password: "password to update",
-		Email:    "user@test.delete.com",
+		Name:     "Amalia",
+		Password: "Password#45",
+		Email:    "test@detelet_test.com",
 	}
 	query := fmt.Sprintf("INSERT INTO users (id, name, password, email) VALUES('%s','%s','%s','%s');",
 		userSuject.Id,
