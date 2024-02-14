@@ -62,6 +62,13 @@ func TestCreate(t *testing.T) {
 
 		assert.NotEmpty(t, newPassword)
 		assert.NotEqual(t, user.Password, newPassword)
+
+		t.Run("Password don't loss data", func(t *testing.T) {
+
+			assert.False(t, user.ComparePassword(user.Password)) // Compare before hash password instance
+			user.HashPassword()
+			assert.True(t, user.ComparePassword(user.Password))
+		})
 	})
 }
 

@@ -25,9 +25,16 @@ func (u User) GetEmail() string { return u.Email }
 // Hash the password if it is not already hashed
 func (u *User) HashPassword() {
 	if !u.hashedPassword {
-		h := sha256.New()
-		h.Write([]byte(u.Password))
-		u.Password = fmt.Sprintf("%x", h.Sum(nil))
+		u.Password = HashPassword(u.Password)
 	}
 	u.hashedPassword = true
+}
+
+func HashPassword(plainPassword string) string {
+	h := sha256.New()
+	h.Write([]byte(plainPassword))
+	return fmt.Sprintf("%x", h.Sum(nil))
+}
+func (u User) ComparePassword(plainPassword string) bool {
+	return u.hashedPassword || HashPassword(plainPassword) == u.Password
 }
