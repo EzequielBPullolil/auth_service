@@ -72,12 +72,12 @@ func TestRead(t *testing.T) {
 	repo.connectionPool.Exec(context.Background(), query)
 
 	t.Run("Return nil if the user non Exist", func(t *testing.T) {
-		geted_user, err := repo.Read("NotRegisteredId")
-		assert.NoError(t, err)
+		geted_user, err := repo.Read("not_registeredEmail@email.test.com")
+		assert.ErrorContains(t, err, "unregistered user")
 		assert.Nil(t, geted_user)
 	})
 	t.Run("Should return an User with the expected fiels", func(t *testing.T) {
-		geted_user, err := repo.Read(userSuject.Id)
+		geted_user, err := repo.Read(userSuject.Email)
 		assert.NoError(t, err)
 		assert.NotNil(t, geted_user)
 		assert.Equal(t, userSuject.Name, geted_user.Name)
