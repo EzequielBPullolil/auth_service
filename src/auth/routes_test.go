@@ -2,10 +2,12 @@ package auth
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
@@ -128,6 +130,10 @@ func TestAuthValidate(t *testing.T) {
 	}
 
 	t.Run("Should response with status code 200 if the auth_token is valid", func(t *testing.T) {
+		expected_response, _ := json.Marshal(types.ResponseWithData{
+			Status: "Valid auth token",
+			Data:   struct{}{},
+		})
 		rr := httptest.NewRecorder()
 		req, err := http.NewRequest("POST", endpoint, nil)
 		assert.NoError(t, err)
@@ -138,9 +144,15 @@ func TestAuthValidate(t *testing.T) {
 
 		server.ServeHTTP(rr, req)
 		assert.Equal(t, http.StatusOK, rr.Code)
-		assert.Contains(t, rr.Body.String(), `"status": "Valid auth token",`)
+		response := strings.TrimSuffix(rr.Body.String(), "\n")
+		assert.Equal(t, string(expected_response), response)
 	})
 	t.Run("Should response with status code 400 if the auth_token is invalid", func(t *testing.T) {
+		expected_response, _ := json.Marshal(types.ResponseError{
+			Status: "Invalid auth token",
+			Error:  "",
+		})
+
 		rr := httptest.NewRecorder()
 		req, err := http.NewRequest("POST", endpoint, nil)
 		assert.NoError(t, err)
@@ -148,10 +160,11 @@ func TestAuthValidate(t *testing.T) {
 		cookie.Value = "a fake token"
 		req.AddCookie(cookie)
 		assert.NotEmpty(t, req.Cookies())
-
 		server.ServeHTTP(rr, req)
+
+		response := strings.TrimSuffix(rr.Body.String(), "\n")
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
-		assert.Contains(t, rr.Body.String(), `"status": "Invalid auth token",`)
+		assert.Equal(t, string(expected_response), response)
 	})
 
 }
