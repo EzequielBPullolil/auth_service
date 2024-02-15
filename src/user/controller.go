@@ -1,7 +1,7 @@
 package user
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -22,50 +22,63 @@ func NewUserController(db_repository types.Repository) UserController {
 
 func (uc UserController) GetAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
 
-	if c, err := req.Cookie("auth_token"); err == nil {
-		id := tokenmanager.GetTokenId(c.Value)
-
-		if user, err := uc.repo.Read(id); err == nil {
-
-			uc.ResponseJsonWithStatus(user.ToJson(), http.StatusOK, res)
-			return
-		} else {
-			uc.ResponseError("unregistered user", err, res)
-			return
-		}
-	} else {
+	c, err := req.Cookie("auth_token")
+	if err != nil {
 		uc.ResponseError("Error finding cookie", err, res)
+		return
 	}
+
+	id := tokenmanager.GetTokenId(c.Value)
+	user, err := uc.repo.Read(id)
+	if err != nil {
+		uc.ResponseError("unregistered user", err, res)
+		return
+	}
+	uc.ResponseWithData("finded user", user, res)
+
 }
 func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
-	c, _ := req.Cookie("auth_token")
+	c, err := req.Cookie("auth_token")
+	if err != nil {
+		uc.ResponseError("Error finding cookie", err, res)
+		return
+	}
 	id := tokenmanager.GetTokenId(c.Value)
 	u := uc.GetUserData(req)
-	updated_user, _ := uc.repo.Update(id, u)
+	updated_user, err := uc.repo.Update(id, u)
 
-	response := fmt.Sprintf(`{
-				"status": "Successful user update",
-				"data": %s
-			}`, updated_user.ToJson())
-
-	uc.ResponseWithStatus(response, 200, res)
+	if err != nil {
+		log.Println(u, updated_user, id, err)
+		uc.ResponseError("error updating user", err, res)
+		return
+	}
+	uc.ResponseWithData("updated user", updated_user, res)
 }
 func (uc UserController) DeleteAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
-	c, _ := req.Cookie("auth_token")
+	c, err := req.Cookie("auth_token")
+	if err != nil {
+		uc.ResponseError("Error finding cookie", err, res)
+		return
+	}
 	id := tokenmanager.GetTokenId(c.Value)
-	uc.repo.Delete(id)
-
-	response := fmt.Sprintf(`{
-			"status": "Successful user delete",
-		}`)
-
-	uc.ResponseWithStatus(response, 200, res)
+	if err := uc.repo.Delete(id); err != nil {
+		log.Println(id, err, res.Header())
+		uc.ResponseError("error deleting user", err, res)
+		return
+	}
+	uc.ResponseWithData("Successful user delete", struct{}{}, res)
 }
 
 func (uc UserController) GetUserById(res http.ResponseWriter, req *http.Request) {
 	id := strings.TrimPrefix(req.URL.Path, "/users/")
-	user, _ := uc.repo.Read(id)
-	uc.ResponseWithStatus(user.ToJson(), 200, res)
+	user, err := uc.repo.Read(id)
+
+	if err != nil {
+		uc.ResponseError("error finding user by id", err, res)
+		return
+	}
+
+	uc.ResponseWithData("finded user", user, res)
 }
 
 func (uc UserController) HandleMethod(w http.ResponseWriter, r *http.Request) {
