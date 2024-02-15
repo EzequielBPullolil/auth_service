@@ -106,6 +106,17 @@ func TestAuthSingup(t *testing.T) {
 }
 
 func TestAuthLogin(t *testing.T) {
+	expected_response, _ := json.Marshal(types.ResponseWithData{
+		Status: "Successful user login",
+		Data: types.TokenData{
+			Token: tokenmanager.CreateToken("anEmail@gogo.com"),
+			User: types.User{
+				Id:    "fake_id",
+				Name:  "ezequiel",
+				Email: "anEmail@gogo.com",
+			},
+		},
+	})
 	endpoint := url + "/login"
 	body := bytes.NewReader([]byte(`{
 		"email": "anEmail@gogo.com",
@@ -118,9 +129,8 @@ func TestAuthLogin(t *testing.T) {
 	server.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusCreated, rr.Code)
 
-	assert.Contains(t, rr.Body.String(), `"status": "Successful user login",`)
-	assert.Contains(t, rr.Body.String(), `"email": "anEmail@gogo.com",`)
-	assert.Contains(t, rr.Body.String(), `"token"`)
+	response := strings.TrimSuffix(rr.Body.String(), "\n")
+	assert.Equal(t, string(expected_response), response)
 }
 
 func TestAuthValidate(t *testing.T) {
