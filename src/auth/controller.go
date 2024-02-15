@@ -35,14 +35,10 @@ func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
 		uc.ResponseError("Error while persisting user", err, res)
 		return
 	}
-
+	res.WriteHeader(201)
 	uc.ResponseWithData("Succesful user registration", entity, res)
 }
 func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
-	type response struct {
-		Token string     `json:"token"`
-		User  types.User `json:"user"`
-	}
 	if r.Method != http.MethodPost {
 		return
 	}
@@ -52,7 +48,8 @@ func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 		uc.ResponseError("Error while login user", err, res)
 		return
 	}
-	uc.ResponseWithData("Successful user login", response{
+	res.WriteHeader(201)
+	uc.ResponseWithData("Successful user login", types.TokenData{
 		Token: tokenmanager.CreateToken(user.GetEmail()),
 		User:  *user,
 	}, res)
