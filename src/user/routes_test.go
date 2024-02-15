@@ -60,7 +60,7 @@ func TestGetAuthenticatedUser(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	expected_response, _ := json.Marshal(types.ResponseWithData{
-		Status: "Successful user delete",
+		Status: "Successful user update",
 		Data: types.UserDAO{
 			User: types.User{
 				Id:       "fake_id",

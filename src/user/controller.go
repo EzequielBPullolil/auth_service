@@ -52,7 +52,9 @@ func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *h
 		uc.ResponseError("error updating user", err, res)
 		return
 	}
-	uc.ResponseWithData("updated user", updated_user, res)
+	uc.ResponseWithData("Successful user update", types.UserDAO{
+		User: *updated_user,
+	}, res)
 }
 func (uc UserController) DeleteAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
 	c, err := req.Cookie("auth_token")
