@@ -9,6 +9,10 @@ import (
 type Controller struct {
 	repo Repository
 }
+type ResponseError struct {
+	Status string `json:"status"`
+	Error  string `json:"error"`
+}
 
 func (c Controller) ResponseWithStatus(data string, statusCode int, res http.ResponseWriter) {
 	res.WriteHeader(statusCode)
@@ -24,4 +28,17 @@ func (c Controller) GetUserData(req *http.Request) User {
 	json.NewDecoder(req.Body).Decode(&u)
 
 	return u
+}
+
+func (c Controller) ResponseError(status string, err error, res http.ResponseWriter) {
+	res.Header().Add("Content-Type", "application/json")
+	res.WriteHeader(400)
+
+	data := ResponseError{
+		Status: status,
+		Error:  err.Error(),
+	}
+	if err := json.NewEncoder(res).Encode(data); err != nil {
+		log.Println("error in response: " + err.Error())
+	}
 }
