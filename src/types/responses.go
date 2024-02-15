@@ -14,3 +14,7 @@ type TokenData struct {
 	User  User   `json:"user"`
 	Token string `json:"token"`
 }
+
+type UserDAO struct {
+	User User `json:"user"`
+}
