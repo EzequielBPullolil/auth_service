@@ -9,15 +9,6 @@ import (
 type Controller struct {
 	repo Repository
 }
-type ResponseError struct {
-	Status string `json:"status"`
-	Error  string `json:"error"`
-}
-
-type ResponseWithData struct {
-	Status string `json:"status"`
-	Data   any    `json:"data"`
-}
 
 func (c Controller) ResponseWithStatus(data string, statusCode int, res http.ResponseWriter) {
 	res.WriteHeader(statusCode)
