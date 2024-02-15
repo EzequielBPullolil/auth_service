@@ -42,6 +42,17 @@ func init() {
 	HandleUserRoute(server, MockedRepo{})
 }
 func TestGetAuthenticatedUser(t *testing.T) {
+	expected_response, _ := json.Marshal(types.ResponseWithData{
+		Status: "Successful user find",
+		Data: types.UserDAO{
+			User: types.User{
+				Id:       "fake_id",
+				Name:     "palacios",
+				Email:    "palacios@gmail.com",
+				Password: "",
+			},
+		},
+	})
 	req, err := http.NewRequest("GET", url, nil)
 	req.AddCookie(&http.Cookie{
 		Name:  "auth_token",
@@ -53,9 +64,8 @@ func TestGetAuthenticatedUser(t *testing.T) {
 	server.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
-	assert.Contains(t, rr.Body.String(), `"id": "fake_id"`)
-	assert.Contains(t, rr.Body.String(), `"name": "palacios"`)
-	assert.Contains(t, rr.Body.String(), `"email": "palacios@gmail.com",`)
+	response := strings.TrimSuffix(rr.Body.String(), "\n")
+	assert.Equal(t, string(expected_response), response)
 }
 
 func TestUpdateUser(t *testing.T) {
@@ -87,9 +97,6 @@ func TestUpdateUser(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rr.Code)
 
 	response := strings.TrimSuffix(rr.Body.String(), "\n")
-	// assert.Contains(t, response, `"status": "Successful user update",`)
-	// assert.Contains(t, response, `"name": "new_name",`)
-	// assert.Contains(t, response, `"email": "anEmail@gogo.com"`)
 	assert.Equal(t, string(expected_response), response)
 }
 

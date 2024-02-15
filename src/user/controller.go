@@ -34,7 +34,9 @@ func (uc UserController) GetAuthenticatedUser(res http.ResponseWriter, req *http
 		uc.ResponseError("unregistered user", err, res)
 		return
 	}
-	uc.ResponseWithData("finded user", user, res)
+	uc.ResponseWithData("Successful user find", types.UserDAO{
+		User: *user,
+	}, res)
 
 }
 func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *http.Request) {
