@@ -36,7 +36,9 @@ func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
 		return
 	}
 	res.WriteHeader(201)
-	uc.ResponseWithData("Succesful user registration", entity, res)
+	uc.ResponseWithData("Succesful user registration", types.UserDAO{
+		User: entity,
+	}, res)
 }
 func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
