@@ -2,8 +2,10 @@ package user
 
 import (
 	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
@@ -20,6 +22,8 @@ type MockedRepo struct {
 }
 
 func (c MockedRepo) Update(t string, e types.User) (*types.User, error) {
+	e.Id = "fake_id"
+	e.HashPassword()
 	return &e, nil
 
 }
@@ -55,6 +59,17 @@ func TestGetAuthenticatedUser(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
+	expected_response, _ := json.Marshal(types.ResponseWithData{
+		Status: "Successful user delete",
+		Data: types.UserDAO{
+			User: types.User{
+				Id:       "fake_id",
+				Name:     "new_name",
+				Email:    "anEmail@gogo.com",
+				Password: types.HashPassword("fasdsad"),
+			},
+		},
+	})
 	body := bytes.NewReader([]byte(`{
 		"name": "new_name",
 		"password": "fasdsad",
@@ -71,13 +86,18 @@ func TestUpdateUser(t *testing.T) {
 	server.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)
 
-	response := rr.Body.String()
-	assert.Contains(t, response, `"status": "Successful user update",`)
-	assert.Contains(t, response, `"name": "new_name",`)
-	assert.Contains(t, response, `"email": "anEmail@gogo.com"`)
+	response := strings.TrimSuffix(rr.Body.String(), "\n")
+	// assert.Contains(t, response, `"status": "Successful user update",`)
+	// assert.Contains(t, response, `"name": "new_name",`)
+	// assert.Contains(t, response, `"email": "anEmail@gogo.com"`)
+	assert.Equal(t, string(expected_response), response)
 }
 
 func TestDeleteUser(t *testing.T) {
+	expected_response, _ := json.Marshal(types.ResponseWithData{
+		Status: "Successful user delete",
+		Data:   struct{}{},
+	})
 	req, err := http.NewRequest("DELETE", url, nil)
 	req.AddCookie(&http.Cookie{
 		Name:  "auth_token",
@@ -87,8 +107,8 @@ func TestDeleteUser(t *testing.T) {
 	rr := httptest.NewRecorder()
 	server.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)
-	response := rr.Body.String()
-	assert.Contains(t, response, `"status": "Successful user delete",`)
+	response := strings.TrimSuffix(rr.Body.String(), "\n")
+	assert.Equal(t, string(expected_response), response)
 }
 
 func TestGetUserById(t *testing.T) {
