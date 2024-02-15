@@ -1,15 +1,19 @@
 package tokenmanager
 
 import (
+	"os"
+
+	"github.com/EzequielBPullolil/auth_service/src/types"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func CreateToken(id string) string {
+func CreateToken(user types.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id": id,
+		"id":    user.Id,
+		"email": user.Email,
 	})
-	tokenString, _ := token.SignedString([]byte("secret"))
-	return tokenString
+	tokenString, _ := token.SignedString([]byte(os.Getenv("JWT_secret")))
+	return tokenString, nil
 }
 
 func GetTokenId(tokenString string) string {

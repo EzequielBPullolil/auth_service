@@ -15,6 +15,18 @@ func init() {
 	secret = "test_secret_2024"
 	os.Setenv("JWT_secret", secret)
 }
+
+func getClaims(token string) jwt.MapClaims {
+	parsedToken, _ := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+	claims, ok := parsedToken.Claims.(jwt.MapClaims)
+
+	if !ok {
+		panic("error obtaining the claims")
+	}
+	return claims
+}
 func TestCreateToken(t *testing.T) {
 	t.Run("A token generated should have expected fields", func(t *testing.T) {
 		user_suject := types.User{
@@ -26,15 +38,10 @@ func TestCreateToken(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
 
-		parsedToken, _ := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
-			return []byte(secret), nil
-		})
+		claims := getClaims(token)
 
-		claims, ok := parsedToken.Claims.(jwt.MapClaims)
-
-		assert.True(t, ok)
 		assert.Equal(t, "FakeId", claims["id"])
 		assert.Equal(t, "ezequiel@test.com", claims["email"])
-		assert.Equal(t, "", claims["name"])
+		assert.Nil(t, claims["name"])
 	})
 }
