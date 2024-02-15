@@ -14,6 +14,11 @@ type ResponseError struct {
 	Error  string `json:"error"`
 }
 
+type ResponseWithData struct {
+	Status string `json:"status"`
+	Data   any    `json:"data"`
+}
+
 func (c Controller) ResponseWithStatus(data string, statusCode int, res http.ResponseWriter) {
 	res.WriteHeader(statusCode)
 
@@ -39,6 +44,19 @@ func (c Controller) ResponseError(status string, err error, res http.ResponseWri
 		Error:  err.Error(),
 	}
 	if err := json.NewEncoder(res).Encode(data); err != nil {
+		log.Println("error in response: " + err.Error())
+	}
+}
+
+func (c Controller) ResponseWithData(status string, data any, res http.ResponseWriter) {
+	res.Header().Add("Content-Type", "application/json")
+
+	d := ResponseWithData{
+		Status: status,
+		Data:   data,
+	}
+
+	if err := json.NewEncoder(res).Encode(d); err != nil {
 		log.Println("error in response: " + err.Error())
 	}
 }
