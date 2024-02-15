@@ -25,6 +25,7 @@ type MockedRepo struct {
 
 func (c MockedRepo) Create(t types.User) (types.User, error) {
 	t.Id = "test_id_fake"
+	t.HashPassword()
 	return t, nil
 }
 func (c MockedRepo) Read(t string) (*types.User, error) {
@@ -95,6 +96,17 @@ func TestAuthSingup(t *testing.T) {
 	})
 
 	t.Run("Should response with status code 201 if all fields are valid", func(t *testing.T) {
+		expected_response, _ := json.Marshal(types.ResponseWithData{
+			Status: "Succesful user registration",
+			Data: types.UserDAO{
+				User: types.User{
+					Id:       "test_id_fake",
+					Name:     valid_name,
+					Email:    valid_email,
+					Password: types.HashPassword(valid_password),
+				},
+			},
+		})
 		rr := httptest.NewRecorder()
 		body := bytes.NewReader([]byte(createBody(valid_name, valid_password, valid_email)))
 		req, err := http.NewRequest("POST", endpoint, body)
@@ -102,6 +114,9 @@ func TestAuthSingup(t *testing.T) {
 		server.ServeHTTP(rr, req)
 
 		assert.Equal(t, http.StatusCreated, rr.Code)
+
+		response := strings.TrimSuffix(rr.Body.String(), "\n")
+		assert.Equal(t, string(expected_response), response)
 	})
 }
 
