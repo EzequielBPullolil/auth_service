@@ -14,7 +14,10 @@ var (
 )
 
 type User struct {
-	Id, Name, Email, Password string
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"-"`
 
 	hashedPassword bool
 }
