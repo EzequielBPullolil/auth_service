@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -36,15 +35,14 @@ func (uc AuthController) SignupUser(res http.ResponseWriter, r *http.Request) {
 		uc.ResponseError("Error while persisting user", err, res)
 		return
 	}
-	response := fmt.Sprintf(`{
-			"status": "Successful user registration",
-			"data":{
-				%s
-			}
-		}`, entity.ToJson())
-	uc.ResponseJsonWithStatus(response, http.StatusCreated, res)
+
+	uc.ResponseWithData("Succesful user registration", entity, res)
 }
 func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
+	type response struct {
+		Token string     `json:"token"`
+		User  types.User `json:"user"`
+	}
 	if r.Method != http.MethodPost {
 		return
 	}
@@ -54,15 +52,10 @@ func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 		uc.ResponseError("Error while login user", err, res)
 		return
 	}
-
-	response := fmt.Sprintf(`{
-		"status": "Successful user login",
-		"data":{
-			"token": "%s",
-			"user": %s
-		}
-	}`, tokenmanager.CreateToken(user.GetEmail()), user.ToJson())
-	uc.ResponseJsonWithStatus(response, http.StatusCreated, res)
+	uc.ResponseWithData("Successful user login", response{
+		Token: tokenmanager.CreateToken(user.GetEmail()),
+		User:  *user,
+	}, res)
 
 }
 
@@ -89,8 +82,6 @@ func (uc AuthController) ValidateUserToken(res http.ResponseWriter, r *http.Requ
 		return
 
 	}
-	uc.ResponseJsonWithStatus(`{
-				"status": "Valid auth token",
-			}`, http.StatusOK, res)
+	uc.ResponseWithData("Valid auth token", struct{}{}, res)
 
 }
