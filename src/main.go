@@ -19,6 +19,6 @@ func main() {
 	user_repo.CreateTables()
 	user.HandleUserRoute(server, user_repo)
 	auth.HandleAuthRoutes(server, user_repo)
-	log.Printf(`Server listen on "%s:%s`, HOST, PORT)
+	log.Printf(`Server listen on "%s:%s"`, HOST, PORT)
 	log.Fatal(http.ListenAndServe(HOST+":"+PORT, server))
 }
