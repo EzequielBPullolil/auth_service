@@ -50,3 +50,26 @@ func TestValidateEmail(t *testing.T) {
 		assert.True(t, user_suject.ValidateEmaiL())
 	})
 }
+func TestValidatePassword(t *testing.T) {
+	var user_suject = User{}
+	var invalid_cases = []struct{ Name, Value string }{
+		{Name: "A password with less than 8 characters should be invalid", Value: "Aa#2bca"},
+		{Name: "A password without a number should be invalid", Value: "Aaaaaaa#"},
+		{Name: "A password without a symbol should be invalid", Value: "Aaaaaaa3"},
+		{Name: "A password without a capital letter should be invalid", Value: "a#4aaaaa"},
+		{Name: "A password without a lowercase should be invalid", Value: "A#4AAAAA"},
+	}
+
+	for _, field := range invalid_cases {
+
+		t.Run(field.Name, func(t *testing.T) {
+			user_suject.Password = field.Value
+			assert.False(t, user_suject.ValidatePassword())
+		})
+	}
+
+	t.Run("Should be valid Password", func(t *testing.T) {
+		user_suject.Password = "Mip@ssw0rd"
+		assert.True(t, user_suject.ValidatePassword())
+	})
+}
