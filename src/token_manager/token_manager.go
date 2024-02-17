@@ -18,7 +18,7 @@ func CreateToken(user types.User) (string, error) {
 
 func GetTokenId(tokenString string) string {
 	t, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil
+		return []byte(os.Getenv("JWT_secret")), nil
 	})
 	if claims, ok := t.Claims.(jwt.MapClaims); ok && t.Valid {
 		id := claims["id"].(string)
@@ -29,10 +29,10 @@ func GetTokenId(tokenString string) string {
 
 func ValidateToken(tokenString string) bool {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil
+		return []byte(os.Getenv("JWT_secret")), nil
 	})
-	if err != nil || !token.Valid {
+	if err != nil {
 		return false
 	}
-	return true
+	return token.Valid
 }
