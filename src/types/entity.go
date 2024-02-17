@@ -51,30 +51,30 @@ func (u User) ComparePassword(plainPassword string) bool {
 }
 
 func (u User) ValidateFields() (error, bool) {
-	if !u.validateName() {
+	if !u.ValidateName() {
 		return InvalidName, false
 	}
 
-	if !u.validateEmaiL() {
+	if !u.ValidateEmaiL() {
 		return InvalidEmail, false
 	}
 
-	if !u.validatePassword() {
+	if !u.ValidatePassword() {
 		return InvalidPassword, false
 	}
 	return nil, true
 }
 
-func (u User) validateName() bool {
+func (u User) ValidateName() bool {
 	ok, _ := regexp.MatchString(`[^0-9\W_ ]+$`, u.Name)
 	return len(u.Name) > 5 && ok
 }
 
-func (u User) validateEmaiL() bool {
+func (u User) ValidateEmaiL() bool {
 	ok, _ := regexp.MatchString(`^[^@]+@[^@]+\.[a-zA-Z]{2,}$`, u.Email)
 	return ok
 }
-func (u User) validatePassword() bool {
+func (u User) ValidatePassword() bool {
 	ok, _ := regexp.MatchString(`[A-Z]+.*[a-z]+.*\d+.*[\W_]+|.*[a-z]+.*[A-Z]+.*\d+.*[\W_]+|.*\d+.*[a-z]+.*[A-Z]+.*[\W_]+|.*[\W_]+.*[a-z]+.*[A-Z]+.*\d+`, u.Password)
 	return len(u.Password) > 7 && ok
 }
