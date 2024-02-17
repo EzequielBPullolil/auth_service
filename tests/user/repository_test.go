@@ -1,21 +1,30 @@
-package user
+package user_test
 
 import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"testing"
 
+	"github.com/EzequielBPullolil/auth_service/src/types"
+	"github.com/EzequielBPullolil/auth_service/src/user"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
 )
 
-var repo UserRepository
-var pool *pgxpool.Pool
+var repo user.UserRepository
+var connection *pgx.Conn
 
 func init() {
+	var pool *pgxpool.Pool
 	var err error
-	if pool, err = pgxpool.New(context.Background(), "postgresql://ezequiel-k:ezequiel_dev_pass@localhost:5432/auth_systemtest"); err != nil {
+	if pool, err = pgxpool.New(context.Background(), os.Getenv("DB_TEST_URI")); err != nil {
+		log.Fatal(err)
+	}
+
+	if connection, err = pgx.Connect(context.Background(), os.Getenv("DB_TEST_URI")); err != nil {
 		log.Fatal(err)
 	}
 
@@ -23,14 +32,14 @@ func init() {
 		log.Fatal(err)
 	}
 	pool.QueryRow(context.Background(), "delete from users;")
-	repo = NewUserRepository(pool)
+	repo = user.NewUserRepository(pool)
 
 	if err = repo.CreateTables(); err != nil {
 		log.Fatal(err)
 	}
 }
 func TestCreate(t *testing.T) {
-	var user = User{
+	var user = types.User{
 		Name:     "test_user",
 		Password: "Test_password4",
 		Email:    "email@create_test.com",
@@ -43,19 +52,19 @@ func TestCreate(t *testing.T) {
 	})
 	t.Run("Should persist an user", func(t *testing.T) {
 		var response_id string
-		assert.NoError(t, pool.QueryRow(context.Background(), "SELECT id FROM users WHERE email='"+persistedUser.Email+"'").Scan(&response_id))
+		assert.NoError(t, connection.QueryRow(context.Background(), "SELECT id FROM users WHERE email='"+persistedUser.Email+"'").Scan(&response_id))
 		assert.Equal(t, persistedUser.GetId(), response_id)
 	})
 	t.Run("Should not create an user with the same email", func(t *testing.T) {
 		_, err := repo.Create(user)
 		assert.Error(t, err)
 		var count int
-		repo.connectionPool.QueryRow(context.Background(), "SELECT COUNT(email) FROM users WHERE email='"+persistedUser.Email+"'").Scan(&count)
+		connection.QueryRow(context.Background(), "SELECT COUNT(email) FROM users WHERE email='"+persistedUser.Email+"'").Scan(&count)
 		assert.Equal(t, count, 1)
 	})
 	t.Run("Should persist a user with encrypted password", func(t *testing.T) {
 		var newPassword string
-		repo.connectionPool.QueryRow(context.Background(), "SELECT password FROM users WHERE email='"+persistedUser.Email+"'").Scan(&newPassword)
+		connection.QueryRow(context.Background(), "SELECT password FROM users WHERE email='"+persistedUser.Email+"'").Scan(&newPassword)
 
 		assert.NotEmpty(t, newPassword)
 		assert.NotEqual(t, user.Password, newPassword)
@@ -70,7 +79,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	var userSuject = User{
+	var userSuject = types.User{
 		Id:       "some_id",
 		Name:     "Analia",
 		Password: "Password#34",
@@ -81,7 +90,7 @@ func TestRead(t *testing.T) {
 		userSuject.Name,
 		userSuject.Password,
 		userSuject.Email)
-	repo.connectionPool.Exec(context.Background(), query)
+	connection.Exec(context.Background(), query)
 
 	t.Run("Return nil if the user non Exist", func(t *testing.T) {
 		geted_user, err := repo.Read("not_registeredEmail@email.test.com")
@@ -99,7 +108,7 @@ func TestRead(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	var userSuject = User{
+	var userSuject = types.User{
 		Id:       "a-user-to-update",
 		Name:     "Granata",
 		Password: "PasSWord#32",
@@ -110,9 +119,9 @@ func TestUpdate(t *testing.T) {
 		userSuject.Name,
 		userSuject.Password,
 		userSuject.Email)
-	_, err := repo.connectionPool.Exec(context.Background(), query)
+	_, err := connection.Exec(context.Background(), query)
 	assert.NoError(t, err)
-	var newFields = User{
+	var newFields = types.User{
 		Name:     "Ezequiel",
 		Password: "PasSWord#2",
 		Email:    "newemail@test.com",
@@ -132,15 +141,15 @@ func TestUpdate(t *testing.T) {
 	})
 
 	t.Run("Cant update ID", func(t *testing.T) {
-		u, err := repo.Update(userSuject.Id, User{Id: "hola"})
+		u, err := repo.Update(userSuject.Id, types.User{Id: "hola"})
 
 		assert.Nil(t, u)
 		assert.ErrorContains(t, err, "Can't update user ID")
 	})
 	t.Run("Should return error if try to update email with already registered email", func(t *testing.T) {
-		_, err := repo.connectionPool.Exec(context.Background(), "INSERT INTO users (id, name, password, email) VALUES('##sds##', '','','test@registeredEmail.com')")
+		_, err := connection.Exec(context.Background(), "INSERT INTO users (id, name, password, email) VALUES('##sds##', '','','test@registeredEmail.com')")
 		assert.NoError(t, err)
-		u, err := repo.Update(userSuject.Id, User{
+		u, err := repo.Update(userSuject.Id, types.User{
 			Email: "test@registeredEmail.com",
 		})
 
@@ -151,7 +160,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	var userSuject = User{
+	var userSuject = types.User{
 		Id:       "a-user-to-delete",
 		Name:     "Amalia",
 		Password: "Password#45",
@@ -162,7 +171,7 @@ func TestDelete(t *testing.T) {
 		userSuject.Name,
 		userSuject.Password,
 		userSuject.Email)
-	repo.connectionPool.Exec(context.Background(), query)
+	connection.Exec(context.Background(), query)
 
 	t.Run("Should return error if User dont exist", func(t *testing.T) {
 		err := repo.Delete("fake_id")
@@ -172,7 +181,7 @@ func TestDelete(t *testing.T) {
 	t.Run("Should delete User in DB if erro == nil ", func(t *testing.T) {
 		assert.Nil(t, repo.Delete(userSuject.Id))
 		var count int
-		repo.connectionPool.QueryRow(context.Background(), "SELECT COUNT(id) FROM users WHERE id='"+userSuject.Id+"'").Scan(&count)
+		connection.QueryRow(context.Background(), "SELECT COUNT(id) FROM users WHERE id='"+userSuject.Id+"'").Scan(&count)
 		assert.Equal(t, count, 0)
 	})
 }

@@ -1,4 +1,4 @@
-package user
+package user_test
 
 import (
 	"bytes"
@@ -11,6 +11,7 @@ import (
 
 	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
 	"github.com/EzequielBPullolil/auth_service/src/types"
+	"github.com/EzequielBPullolil/auth_service/src/user"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,11 +22,6 @@ var simulatedToken, _ = tokenmanager.CreateToken(types.User{
 	Id:    "fake_id",
 	Email: "anEmail@gogo.com",
 })
-
-// Simulated repo
-type MockedRepo struct {
-	types.Repository
-}
 
 func (c MockedRepo) FindById(id string) (*types.User, error) {
 	if id == "unregisteredId" {
@@ -57,7 +53,7 @@ func (c MockedRepo) Read(t string) (*types.User, error) {
 }
 func init() {
 	server = http.NewServeMux()
-	HandleUserRoute(server, MockedRepo{})
+	user.HandleUserRoute(server, MockedRepo{})
 }
 func TestGetAuthenticatedUser(t *testing.T) {
 	expected_response, _ := json.Marshal(types.ResponseWithData{

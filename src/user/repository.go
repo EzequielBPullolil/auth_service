@@ -22,6 +22,10 @@ func NewUserRepository(pool *pgxpool.Pool) UserRepository {
 	}
 }
 
+func (r UserRepository) ConnectionPool() *pgxpool.Pool {
+	return r.connectionPool
+}
+
 func (r UserRepository) CreateTables() error {
 	_, err := r.connectionPool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS users (
 		id VARCHAR PRIMARY KEY,
