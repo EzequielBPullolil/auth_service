@@ -113,9 +113,9 @@ func TestUpdate(t *testing.T) {
 	_, err := repo.connectionPool.Exec(context.Background(), query)
 	assert.NoError(t, err)
 	var newFields = User{
-		Name:     "Bakan",
-		Password: "Bakan",
-		Email:    "Bakan",
+		Name:     "Ezequiel",
+		Password: "PasSWord#2",
+		Email:    "newemail@test.com",
 	}
 	t.Run("Should return error if user non exist", func(t *testing.T) {
 		u, err := repo.Update("nonExistingID", newFields)
@@ -124,7 +124,6 @@ func TestUpdate(t *testing.T) {
 	})
 	t.Run("Should update user in db", func(t *testing.T) {
 		u, err := repo.Update(userSuject.Id, newFields)
-
 		assert.NotNil(t, u)
 		assert.NoError(t, err)
 
