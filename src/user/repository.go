@@ -55,14 +55,30 @@ func (r UserRepository) Read(email string) (*User, error) {
 
 func (r UserRepository) Update(user_id string, new_fields User) (*User, error) {
 	var user User
-
 	if new_fields.Id != "" {
 		return nil, errors.New("Can't update user ID")
 	}
-	err := r.connectionPool.QueryRow(
-		context.Background(),
-		"UPDATE users SET name=$1, password=$2, email=$3 WHERE id=$4 RETURNING id, name, password, email;",
-		new_fields.Name, new_fields.Password, new_fields.Email, user_id).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
+	if err, ok := r.validateFields(new_fields); !ok {
+		return nil, err
+	}
+
+	if new_fields.Password != "" {
+		new_fields.HashPassword()
+	}
+	err := r.connectionPool.QueryRow(context.Background(), `UPDATE users
+	SET name = CASE
+				WHEN $1 <> '' THEN $1
+				ELSE name
+			   END,
+		password = CASE
+				   WHEN $2 <> '' THEN $2
+				   ELSE password
+				  END,
+		email = CASE
+				WHEN $3 <> '' THEN $3
+				ELSE email
+			   END
+	WHERE id = $4 RETURNING id, name, password, email;`, new_fields.Name, new_fields.Password, new_fields.Email, user_id).Scan(&user.Id, &user.Name, &user.Password, &user.Email)
 	if err != nil {
 		if strings.Contains(err.Error(), "SQLSTATE 23505") {
 			return nil, errors.New("Cannot update user: Email already in use")
@@ -70,7 +86,7 @@ func (r UserRepository) Update(user_id string, new_fields User) (*User, error) {
 		return nil, err
 	}
 
-	return &user, err
+	return &user, nil
 }
 
 func (r UserRepository) Delete(user_id string) error {
@@ -80,4 +96,19 @@ func (r UserRepository) Delete(user_id string) error {
 		return errors.New(fmt.Sprintf("There is no user with the ID: '%s'", user_id))
 	}
 	return nil
+}
+
+func (r UserRepository) validateFields(fields User) (error, bool) {
+	if fields.Name != "" && !fields.ValidateName() {
+		return errors.New("The field passed to update `name` is invalid"), false
+	}
+
+	if fields.Email != "" && !fields.ValidateEmaiL() {
+		return errors.New("The field passed to update `email` is invalid"), false
+	}
+	if fields.Password != "" && !fields.ValidatePassword() {
+		return errors.New("The field passed to update `password` is invalid"), false
+	}
+
+	return nil, true
 }

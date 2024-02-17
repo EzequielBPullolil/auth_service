@@ -45,7 +45,7 @@ func (uc UserController) UpdateAuthenticatedUser(res http.ResponseWriter, req *h
 		uc.ResponseError("Error finding cookie", err, res)
 		return
 	}
-	id := tokenmanager.GetTokenId(c.Value)
+	id, _ := tokenmanager.GetUserData(c.Value)
 	u := uc.GetUserData(req)
 	updated_user, err := uc.repo.Update(id, u)
 
