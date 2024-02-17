@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/EzequielBPullolil/auth_service/src/types"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -36,7 +37,7 @@ func (r UserRepository) CreateTables() error {
 	return err
 }
 
-func (r UserRepository) Create(userFields User) (User, error) {
+func (r UserRepository) Create(userFields types.User) (types.User, error) {
 	id, _ := uuid.NewUUID()
 	userFields.Id = id.String()
 	userFields.HashPassword()
@@ -46,8 +47,8 @@ func (r UserRepository) Create(userFields User) (User, error) {
 	return userFields, err
 }
 
-func (r UserRepository) Read(email string) (*User, error) {
-	var user User
+func (r UserRepository) Read(email string) (*types.User, error) {
+	var user types.User
 	query := fmt.Sprintf("SELECT * FROM users WHERE email='%s';", email)
 
 	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
@@ -56,8 +57,8 @@ func (r UserRepository) Read(email string) (*User, error) {
 	}
 	return &user, nil
 }
-func (r UserRepository) FindById(id string) (*User, error) {
-	var user User
+func (r UserRepository) FindById(id string) (*types.User, error) {
+	var user types.User
 	query := fmt.Sprintf("SELECT * FROM users WHERE id='%s';", id)
 
 	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
@@ -67,8 +68,8 @@ func (r UserRepository) FindById(id string) (*User, error) {
 	return &user, nil
 }
 
-func (r UserRepository) Update(user_id string, new_fields User) (*User, error) {
-	var user User
+func (r UserRepository) Update(user_id string, new_fields types.User) (*types.User, error) {
+	var user types.User
 	if new_fields.Id != "" {
 		return nil, errors.New("Can't update user ID")
 	}
@@ -112,7 +113,7 @@ func (r UserRepository) Delete(user_id string) error {
 	return nil
 }
 
-func (r UserRepository) validateFields(fields User) (error, bool) {
+func (r UserRepository) validateFields(fields types.User) (error, bool) {
 	if fields.Name != "" && !fields.ValidateName() {
 		return errors.New("The field passed to update `name` is invalid"), false
 	}
