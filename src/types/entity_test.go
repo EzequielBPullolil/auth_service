@@ -27,3 +27,26 @@ func TestValidateName(t *testing.T) {
 		assert.True(t, user_suject.ValidateName())
 	})
 }
+
+func TestValidateEmail(t *testing.T) {
+	var user_suject = User{}
+	var invalid_cases = []struct{ Name, Value string }{
+		{Name: "An email without a name should be invalid", Value: "@domain.com"},
+		{Name: "An email without a @ should be invalid", Value: "namedomain.com"},
+		{Name: "An email without a domain should be invalid", Value: "name@.com"},
+		{Name: "An email without a dot should be invalid", Value: "ezequiel@email com"},
+	}
+
+	for _, field := range invalid_cases {
+
+		t.Run(field.Name, func(t *testing.T) {
+			user_suject.Email = field.Value
+			assert.False(t, user_suject.ValidateEmaiL())
+		})
+	}
+
+	t.Run("Should be valid Email", func(t *testing.T) {
+		user_suject.Email = "name@domain.org"
+		assert.True(t, user_suject.ValidateEmaiL())
+	})
+}
