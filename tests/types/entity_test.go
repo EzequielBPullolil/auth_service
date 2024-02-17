@@ -3,11 +3,12 @@ package types
 import (
 	"testing"
 
+	"github.com/EzequielBPullolil/auth_service/src/types"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateName(t *testing.T) {
-	var user_suject = User{}
+	var user_suject = types.User{}
 	var invalid_cases = []struct{ Name, Value string }{
 		{Name: "A name with symbols should not be valid", Value: "Abcdf#"},
 		{Name: "A name with numbers should not be valid", Value: "Abcdf3"},
@@ -29,7 +30,7 @@ func TestValidateName(t *testing.T) {
 }
 
 func TestValidateEmail(t *testing.T) {
-	var user_suject = User{}
+	var user_suject = types.User{}
 	var invalid_cases = []struct{ Name, Value string }{
 		{Name: "An email without a name should be invalid", Value: "@domain.com"},
 		{Name: "An email without a @ should be invalid", Value: "namedomain.com"},
@@ -51,7 +52,7 @@ func TestValidateEmail(t *testing.T) {
 	})
 }
 func TestValidatePassword(t *testing.T) {
-	var user_suject = User{}
+	var user_suject = types.User{}
 	var invalid_cases = []struct{ Name, Value string }{
 		{Name: "A password with less than 8 characters should be invalid", Value: "Aa#2bca"},
 		{Name: "A password without a number should be invalid", Value: "Aaaaaaa#"},
