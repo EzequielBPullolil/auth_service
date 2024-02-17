@@ -28,12 +28,12 @@ func getClaims(token string) jwt.MapClaims {
 	return claims
 }
 func TestCreateToken(t *testing.T) {
+	user_suject := types.User{
+		Id:    "FakeId",
+		Name:  "Ezequiel",
+		Email: "ezequiel@test.com",
+	}
 	t.Run("A token generated should have expected fields", func(t *testing.T) {
-		user_suject := types.User{
-			Id:    "FakeId",
-			Name:  "Ezequiel",
-			Email: "ezequiel@test.com",
-		}
 		token, err := CreateToken(user_suject)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
@@ -43,5 +43,17 @@ func TestCreateToken(t *testing.T) {
 		assert.Equal(t, "FakeId", claims["id"])
 		assert.Equal(t, "ezequiel@test.com", claims["email"])
 		assert.Nil(t, claims["name"])
+	})
+	t.Run("An error should be returned if the user's 'id' field is empty", func(t *testing.T) {
+		user_suject.Id = ""
+		token, err := CreateToken(user_suject)
+		assert.ErrorContains(t, err, "The 'id' field is empty")
+		assert.Empty(t, token)
+	})
+	t.Run("An error should be returned if the user's 'email' field is empty", func(t *testing.T) {
+		user_suject.Email = ""
+		token, err := CreateToken(user_suject)
+		assert.ErrorContains(t, err, "The 'email' field is empty")
+		assert.Empty(t, token)
 	})
 }
