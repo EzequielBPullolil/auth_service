@@ -75,6 +75,26 @@ func (u User) ValidateEmaiL() bool {
 	return ok
 }
 func (u User) ValidatePassword() bool {
-	ok, _ := regexp.MatchString(`[A-Z]+.*[a-z]+.*\d+.*[\W_]+|.*[a-z]+.*[A-Z]+.*\d+.*[\W_]+|.*\d+.*[a-z]+.*[A-Z]+.*[\W_]+|.*[\W_]+.*[a-z]+.*[A-Z]+.*\d+`, u.Password)
-	return len(u.Password) > 7 && ok
+	if len(u.Password) < 8 {
+		return false
+	}
+
+	// Verificar al menos una letra mayúscula, una letra minúscula, un dígito y un carácter especial
+	var (
+		hasUpper, hasLower, hasDigit, hasSpecial bool
+	)
+	for _, char := range u.Password {
+		switch {
+		case 'A' <= char && char <= 'Z':
+			hasUpper = true
+		case 'a' <= char && char <= 'z':
+			hasLower = true
+		case '0' <= char && char <= '9':
+			hasDigit = true
+		default:
+			hasSpecial = true
+		}
+	}
+
+	return hasUpper && hasLower && hasDigit && hasSpecial
 }
