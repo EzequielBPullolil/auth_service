@@ -50,9 +50,14 @@ func (uc AuthController) LoginUser(res http.ResponseWriter, r *http.Request) {
 		uc.ResponseError("Error while login user", err, res)
 		return
 	}
+	token, err := tokenmanager.CreateToken(*user)
+	if err != nil {
+		uc.ResponseError("Error while creating token", err, res)
+		return
+	}
 	res.WriteHeader(201)
 	uc.ResponseWithData("Successful user login", types.TokenData{
-		Token: tokenmanager.CreateToken(user.GetEmail()),
+		Token: token,
 		User:  *user,
 	}, res)
 

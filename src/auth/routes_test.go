@@ -12,6 +12,7 @@ import (
 
 	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
 	"github.com/EzequielBPullolil/auth_service/src/types"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -121,10 +122,14 @@ func TestAuthSingup(t *testing.T) {
 }
 
 func TestAuthLogin(t *testing.T) {
+	token, _ := tokenmanager.CreateToken(types.User{
+		Id:    "fake_id",
+		Email: "anEmail@gogo.com",
+	})
 	expected_response, _ := json.Marshal(types.ResponseWithData{
 		Status: "Successful user login",
 		Data: types.TokenData{
-			Token: tokenmanager.CreateToken("anEmail@gogo.com"),
+			Token: token,
 			User: types.User{
 				Id:    "fake_id",
 				Name:  "ezequiel",
@@ -155,6 +160,10 @@ func TestAuthValidate(t *testing.T) {
 	}
 
 	t.Run("Should response with status code 200 if the auth_token is valid", func(t *testing.T) {
+		token, _ := tokenmanager.CreateToken(types.User{
+			Id:    uuid.New().String(),
+			Email: "email@test.com",
+		})
 		expected_response, _ := json.Marshal(types.ResponseWithData{
 			Status: "Valid auth token",
 			Data:   struct{}{},
@@ -163,7 +172,7 @@ func TestAuthValidate(t *testing.T) {
 		req, err := http.NewRequest("POST", endpoint, nil)
 		assert.NoError(t, err)
 
-		cookie.Value = tokenmanager.CreateToken("fake_id")
+		cookie.Value = token
 		req.AddCookie(cookie)
 		assert.NotEmpty(t, req.Cookies())
 
