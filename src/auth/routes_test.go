@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -65,33 +64,30 @@ func TestAuthSingup(t *testing.T) {
 				})
 			}
 		})
-		t.Run("Try signup user with invalid fields", func(t *testing.T) {
-			var invalid_fields = [][]struct{ Name, Body string }{
-				{
-					{"it's not long enough", createBody("abcd", valid_password, valid_email)},
-					{"it's not empty", createBody("", valid_password, valid_email)},
-					{"Not contains numbers", createBody("abcdf#", valid_password, valid_email)},
-					{"Not contains symbols", createBody("abcdf5", valid_password, valid_email)},
-				},
-				{
-					{"it's not long enough", createBody(valid_name, "Abcde#2", valid_email)},
-					{"it's empty", createBody(valid_name, "", valid_email)},
-					{"Not contains numbers", createBody(valid_name, "Abcdf#A", valid_email)},
-					{"Not contains symbols", createBody(valid_name, "Abcde22", valid_email)},
-				},
+
+		t.Run("Any field is invalid", func(t *testing.T) {
+			var invalid_cases = []struct{ Title, Error, Body string }{
+				{Title: "Invalid name", Error: "Invalid Name", Body: createBody("Abcd#", valid_password, valid_email)},
+				{Title: "Invalid password", Error: "Invalid Password", Body: createBody(valid_name, "Abc#3aa", valid_email)},
+				{Title: "Invalid email", Error: "Invalid Email", Body: createBody(valid_name, valid_password, "nodomain.com")},
 			}
-			for i := range invalid_fields {
-				for _, field := range invalid_fields[i] {
-					t.Run(field.Name, func(t *testing.T) {
-						rr := httptest.NewRecorder()
-						body := bytes.NewReader([]byte(field.Body))
-						req, err := http.NewRequest("POST", endpoint, body)
-						assert.NoError(t, err)
-						server.ServeHTTP(rr, req)
-						log.Println(rr.Body.String())
-						assert.Equal(t, http.StatusBadRequest, rr.Code)
+
+			for _, c := range invalid_cases {
+				t.Run(c.Title, func(t *testing.T) {
+					expected_response, _ := json.Marshal(types.ResponseError{
+						Status: "error signup user",
+						Error:  c.Error,
 					})
-				}
+					rr := httptest.NewRecorder()
+					body := bytes.NewReader([]byte(c.Body))
+					req, err := http.NewRequest("POST", endpoint, body)
+					assert.NoError(t, err)
+					server.ServeHTTP(rr, req)
+					assert.Equal(t, http.StatusBadRequest, rr.Code)
+
+					response := strings.TrimSuffix(rr.Body.String(), "\n")
+					assert.Equal(t, string(expected_response), response)
+				})
 			}
 		})
 	})
