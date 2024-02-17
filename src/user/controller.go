@@ -75,7 +75,7 @@ func (uc UserController) DeleteAuthenticatedUser(res http.ResponseWriter, req *h
 
 func (uc UserController) GetUserById(res http.ResponseWriter, req *http.Request) {
 	id := strings.TrimPrefix(req.URL.Path, "/users/")
-	user, err := uc.repo.Read(id)
+	user, err := uc.repo.FindById(id)
 
 	if err != nil {
 		uc.ResponseError("error finding user by id", err, res)

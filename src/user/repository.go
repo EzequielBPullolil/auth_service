@@ -52,6 +52,16 @@ func (r UserRepository) Read(email string) (*User, error) {
 	}
 	return &user, nil
 }
+func (r UserRepository) FindById(id string) (*User, error) {
+	var user User
+	query := fmt.Sprintf("SELECT * FROM users WHERE id='%s';", id)
+
+	r.connectionPool.QueryRow(context.Background(), query).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
+	if user.Name == "" {
+		return nil, errors.New("unregistered user")
+	}
+	return &user, nil
+}
 
 func (r UserRepository) Update(user_id string, new_fields User) (*User, error) {
 	var user User
