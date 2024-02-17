@@ -3,6 +3,7 @@ package user
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -21,6 +22,18 @@ type MockedRepo struct {
 	types.Repository
 }
 
+func (c MockedRepo) FindById(id string) (*types.User, error) {
+	if id == "unregisteredId" {
+		return nil, errors.New("There is no registered user with the id `unregisteredId`")
+	}
+
+	return &types.User{
+		Id:       "fake_id",
+		Name:     "new_name",
+		Email:    "anEmail@gogo.com",
+		Password: types.HashPassword("fasdsad"),
+	}, nil
+}
 func (c MockedRepo) Update(t string, e types.User) (*types.User, error) {
 	e.Id = "fake_id"
 	e.HashPassword()
@@ -122,9 +135,27 @@ func TestDeleteUser(t *testing.T) {
 }
 
 func TestGetUserById(t *testing.T) {
-	req, err := http.NewRequest("GET", url+"/fake_id", nil)
-	assert.NoError(t, err)
-	rr := httptest.NewRecorder()
-	server.ServeHTTP(rr, req)
-	assert.Equal(t, http.StatusOK, rr.Code)
+	t.Run("Should return badrequest if the id does not exist", func(t *testing.T) {
+		expected_response, _ := json.Marshal(types.ResponseError{
+			Status: "error finding user by id",
+			Error:  "There is no registered user with the id `unregisteredId`",
+		})
+		req, err := http.NewRequest("GET", url+"/unregisteredId", nil)
+		assert.NoError(t, err)
+		rr := httptest.NewRecorder()
+		server.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		response := strings.TrimSuffix(rr.Body.String(), "\n")
+		assert.Equal(t, string(expected_response), response)
+
+	})
+
+	t.Run("Should return status ok if the id exist", func(t *testing.T) {
+		req, err := http.NewRequest("GET", url+"/fake_id", nil)
+		assert.NoError(t, err)
+		rr := httptest.NewRecorder()
+		server.ServeHTTP(rr, req)
+		assert.Equal(t, http.StatusOK, rr.Code)
+	})
+
 }
