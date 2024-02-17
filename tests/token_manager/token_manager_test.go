@@ -1,9 +1,10 @@
-package tokenmanager
+package tokenmanager_test
 
 import (
 	"os"
 	"testing"
 
+	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
 	"github.com/EzequielBPullolil/auth_service/src/types"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
@@ -34,7 +35,7 @@ func TestCreateToken(t *testing.T) {
 		Email: "ezequiel@test.com",
 	}
 	t.Run("A token generated should have expected fields", func(t *testing.T) {
-		token, err := CreateToken(user_suject)
+		token, err := tokenmanager.CreateToken(user_suject)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
 
@@ -46,13 +47,13 @@ func TestCreateToken(t *testing.T) {
 	})
 	t.Run("An error should be returned if the user's 'id' field is empty", func(t *testing.T) {
 		user_suject.Id = ""
-		token, err := CreateToken(user_suject)
+		token, err := tokenmanager.CreateToken(user_suject)
 		assert.ErrorContains(t, err, "The 'id' field is empty")
 		assert.Empty(t, token)
 	})
 	t.Run("An error should be returned if the user's 'email' field is empty", func(t *testing.T) {
 		user_suject.Email = ""
-		token, err := CreateToken(user_suject)
+		token, err := tokenmanager.CreateToken(user_suject)
 		assert.ErrorContains(t, err, "The 'email' field is empty")
 		assert.Empty(t, token)
 	})

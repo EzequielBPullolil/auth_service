@@ -1,4 +1,4 @@
-package auth
+package auth_test
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/EzequielBPullolil/auth_service/src/auth"
 	tokenmanager "github.com/EzequielBPullolil/auth_service/src/token_manager"
 	"github.com/EzequielBPullolil/auth_service/src/types"
 	"github.com/google/uuid"
@@ -37,7 +38,7 @@ func (c MockedRepo) Read(t string) (*types.User, error) {
 }
 func init() {
 	server = http.NewServeMux()
-	HandleAuthRoutes(server, MockedRepo{})
+	auth.HandleAuthRoutes(server, MockedRepo{})
 }
 func createBody(name, password, email string) string {
 	return fmt.Sprintf(`{"name":"%s", "password":"%s", "email":"%s"}`, name, password, email)
