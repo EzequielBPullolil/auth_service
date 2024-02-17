@@ -42,6 +42,7 @@ func init() {
 	HandleUserRoute(server, MockedRepo{})
 }
 func TestGetAuthenticatedUser(t *testing.T) {
+	token, _ := tokenmanager.CreateToken(types.User{})
 	expected_response, _ := json.Marshal(types.ResponseWithData{
 		Status: "Successful user find",
 		Data: types.UserDAO{
@@ -56,7 +57,7 @@ func TestGetAuthenticatedUser(t *testing.T) {
 	req, err := http.NewRequest("GET", url, nil)
 	req.AddCookie(&http.Cookie{
 		Name:  "auth_token",
-		Value: tokenmanager.CreateToken("fake_id"),
+		Value: token,
 	})
 	assert.NoError(t, err)
 
@@ -69,6 +70,7 @@ func TestGetAuthenticatedUser(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
+	token, _ := tokenmanager.CreateToken(types.User{})
 	expected_response, _ := json.Marshal(types.ResponseWithData{
 		Status: "Successful user update",
 		Data: types.UserDAO{
@@ -88,7 +90,7 @@ func TestUpdateUser(t *testing.T) {
 	req, err := http.NewRequest("PUT", url, body)
 	req.AddCookie(&http.Cookie{
 		Name:  "auth_token",
-		Value: tokenmanager.CreateToken("fake_id"),
+		Value: token,
 	})
 	assert.NoError(t, err)
 
@@ -101,6 +103,7 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
+	token, _ := tokenmanager.CreateToken(types.User{})
 	expected_response, _ := json.Marshal(types.ResponseWithData{
 		Status: "Successful user delete",
 		Data:   struct{}{},
@@ -108,7 +111,7 @@ func TestDeleteUser(t *testing.T) {
 	req, err := http.NewRequest("DELETE", url, nil)
 	req.AddCookie(&http.Cookie{
 		Name:  "auth_token",
-		Value: tokenmanager.CreateToken("fake_id"),
+		Value: token,
 	})
 	assert.NoError(t, err)
 	rr := httptest.NewRecorder()
