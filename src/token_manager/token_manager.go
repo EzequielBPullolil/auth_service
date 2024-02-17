@@ -1,6 +1,7 @@
 package tokenmanager
 
 import (
+	"errors"
 	"os"
 
 	"github.com/EzequielBPullolil/auth_service/src/types"
@@ -8,6 +9,12 @@ import (
 )
 
 func CreateToken(user types.User) (string, error) {
+	if user.Email == "" {
+		return "", errors.New("The 'email' field is empty")
+	}
+	if user.Id == "" {
+		return "", errors.New("The 'id' field is empty")
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":    user.Id,
 		"email": user.Email,
