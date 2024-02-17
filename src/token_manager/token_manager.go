@@ -36,3 +36,14 @@ func ValidateToken(tokenString string) bool {
 	}
 	return token.Valid
 }
+
+// Describes the user's email and the ID that the token has
+// The token should be valid
+func GetUserData(tokenString string) (string, string) {
+	t, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_secret")), nil
+	})
+	claims, _ := t.Claims.(jwt.MapClaims)
+
+	return claims["id"].(string), claims["email"].(string)
+}

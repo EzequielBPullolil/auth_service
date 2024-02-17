@@ -28,8 +28,8 @@ func (uc UserController) GetAuthenticatedUser(res http.ResponseWriter, req *http
 		return
 	}
 
-	id := tokenmanager.GetTokenId(c.Value)
-	user, err := uc.repo.Read(id)
+	_, email := tokenmanager.GetUserData(c.Value)
+	user, err := uc.repo.Read(email)
 	if err != nil {
 		uc.ResponseError("unregistered user", err, res)
 		return
